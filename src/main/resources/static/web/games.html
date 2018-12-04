@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Games</title>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Salvo!</h1>
+        <ol>
+            <li v-for="game in gamesData">{{game.created}}<span v-for="player in game.gamePlayers">, {{player.player.email}} </span></li>
+        </ol>
+    </div>
+
+    <!-- SCRIPTS -->
+    <!--Vue-->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- JS -->
+    <script src="scripts/games.js"></script>
+</body>
+
+</html>
