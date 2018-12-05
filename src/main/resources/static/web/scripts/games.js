@@ -2,7 +2,7 @@ var app = new Vue({
     el: "#app",
     data:{
         urlApiGames: "/api/games",
-        gamesData:null
+        gamesData: null
     },
     methods:{
         startFetch: function(url){

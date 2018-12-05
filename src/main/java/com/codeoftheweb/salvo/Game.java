@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toList;
 @Entity
 public class Game {
 
-
+    //Attributes
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -25,6 +25,7 @@ public class Game {
     @OneToMany(mappedBy="game", fetch= FetchType.EAGER)
     private Set<GamePlayer> gamePlayerSet = new HashSet<>();
 
+    //Constructors
     public Game(){
         this.creationDateTime = LocalDateTime.now();
     }
@@ -33,6 +34,7 @@ public class Game {
         return this.id;
     }
 
+    //Getters and Setters of the Attributes
     public LocalDateTime getCreationDateTime(){
         return this.creationDateTime;
     }
@@ -45,11 +47,10 @@ public class Game {
         return this.gamePlayerSet;
     }
 
+    //Other Methods
     public List<Player> getPlayers(){
         return this.gamePlayerSet.stream().map(GamePlayer::getPlayer).collect(toList());
     }
-
-
 
     @Override
     public String toString() {

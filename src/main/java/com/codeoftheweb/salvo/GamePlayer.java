@@ -4,10 +4,13 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class GamePlayer {
 
+    //Attributes
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -23,6 +26,10 @@ public class GamePlayer {
 
     private LocalDateTime joinedDateTime;
 
+    @OneToMany(mappedBy="gamePlayer", fetch= FetchType.EAGER)
+    private Set<Ship> shipSet = new HashSet<>();
+
+    //Constructors
     public GamePlayer(){
     }
 
@@ -32,6 +39,7 @@ public class GamePlayer {
         this.joinedDateTime = LocalDateTime.now();
     }
 
+    //Getters and Setters of the Attributes
     public Long getId(){
         return this.id;
     }
@@ -58,6 +66,16 @@ public class GamePlayer {
 
     public void setJoinedDateTime(LocalDateTime joinedDateTime) {
         this.joinedDateTime = joinedDateTime;
+    }
+
+    public Set<Ship> getShipSet(){
+        return this.shipSet;
+    }
+
+    //Other Methods
+    public void addShip(Ship ship){
+        ship.setGamePlayer(this);
+        this.shipSet.add(ship);
     }
 
     @Override
