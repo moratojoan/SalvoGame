@@ -55,11 +55,4 @@ public class Player {
     public List<Game> getGames(){
         return this.gamePlayerSet.stream().map(GamePlayer::getGame).collect(toList());
     }
-
-    @Override
-    public String toString() {
-        return "Player{" +
-                "userName='" + userName + '\'' +
-                '}';
-    }
 }

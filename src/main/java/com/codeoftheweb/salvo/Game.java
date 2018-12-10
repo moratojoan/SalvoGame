@@ -51,11 +51,4 @@ public class Game {
     public List<Player> getPlayers(){
         return this.gamePlayerSet.stream().map(GamePlayer::getPlayer).collect(toList());
     }
-
-    @Override
-    public String toString() {
-        return "Game{" +
-                "creationDateTime=" + creationDateTime +
-                '}';
-    }
 }

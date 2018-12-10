@@ -77,13 +77,4 @@ public class GamePlayer {
         ship.setGamePlayer(this);
         this.shipSet.add(ship);
     }
-
-    @Override
-    public String toString() {
-        return "GamePlayer{" +
-                "player=" + player +
-                ", game=" + game +
-                ", joinedDateTime=" + joinedDateTime +
-                '}';
-    }
 }

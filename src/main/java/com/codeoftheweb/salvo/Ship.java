@@ -63,12 +63,5 @@ public class Ship {
     }
 
     //Other Methods
-    @Override
-    public String toString() {
-        return "Ship{" +
-                "type='" + type + '\'' +
-                ", gamePlayer=" + gamePlayer +
-                ", shipLocations=" + shipLocations +
-                '}';
-    }
+
 }
