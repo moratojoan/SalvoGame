@@ -30,11 +30,11 @@ public class Game {
         this.creationDateTime = LocalDateTime.now();
     }
 
+    //Getters and Setters of the Attributes
     public Long getId(){
         return this.id;
     }
 
-    //Getters and Setters of the Attributes
     public LocalDateTime getCreationDateTime(){
         return this.creationDateTime;
     }

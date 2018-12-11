@@ -12,10 +12,12 @@
 
 <body>
     <div id="app">
-        <h1>Ship Locations!</h1>
-        <div class="grid-container">
-            <div v-for="i in gridSize*gridSize" class="grid-item"></div>
-
+        <div v-if="!loading">
+            <h1>Ship Locations!</h1>
+            <p>{{currentPlayer}} (you) vs {{oponentPlayer}}</p>
+            <div class="grid-container">
+                <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClass(i)">{{getCellName(i)}}</div>
+            </div>
         </div>
     </div>
 

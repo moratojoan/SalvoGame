@@ -12,23 +12,20 @@ import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("/api")
-public class SalvoControler {
+public class SalvoController {
 
+    //Attributes
     @Autowired
     private GameRepository gameRepository;
 
     @Autowired
     private GamePlayerRepository gamePlayerRepository;
 
+    //Request Methods
     @RequestMapping("/games")
     public List<Object> getAllGames(){
         return gameRepository.findAll().stream().map(this::makeGameDTO).collect(toList());
     }
-
-//    @RequestMapping("/game_view/{nn}")
-//    public Optional<Map<String, Object>> getGamePlayerById(@PathVariable("nn") long gpId){
-//        return gamePlayerRepository.findById(gpId).map(this::makeGamePlayerDTO);
-//    }
 
     @RequestMapping("/game_view/{nn}")
     public Map<String, Object> getGamePlayerById(@PathVariable("nn") long gpId){
@@ -40,8 +37,7 @@ public class SalvoControler {
         return dto;
     }
 
-    //------ DTO methods ----
-
+    //DTO Methods
     private Map<String,Object> makeGameDTO(Game game){
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("id",game.getId());
