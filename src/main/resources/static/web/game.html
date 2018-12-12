@@ -15,9 +15,15 @@
         <div v-if="!loading">
             <h1>Ship Locations!</h1>
             <p>{{currentPlayer}} (you) vs {{oponentPlayer}}</p>
-            <div class="grid-container">
-                <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClass(i)">{{getCellName(i)}}</div>
+            <div class="gridsBox">
+                <div class="grid-container">
+                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClass(i)">{{getCellName(i)}}</div>
+                </div>
+                <div class="grid-container">
+                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClass(i)">{{getCellName(i)}}</div>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -28,5 +34,5 @@
     <!-- JS -->
     <script src="scripts/game.js"></script>
 </body>
-
+ 
 </html>

@@ -1,7 +1,13 @@
+.gridsBox{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+
 .grid-container {
     /*box*/
     width: fit-content;
-    /* height: 550px; */
     display: grid;
     grid-template-columns: repeat(11,50px);
     grid-template-rows: repeat(11,50px);
@@ -20,4 +26,7 @@
     text-align: center;
     line-height: 50px;
     background-color: rgb(8, 53, 87);
+    border: 3px;
+    border-style: solid;
+    border-color: black;
   }

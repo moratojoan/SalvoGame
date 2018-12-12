@@ -33,6 +33,7 @@ public class SalvoController {
         Map<String, Object> dto = optionalGamePlayer.map(gamePlayer -> makeGameDTO(gamePlayer.getGame())).orElse(null);
         if(dto != null){
             dto.put("ships", makeListShipDTO(optionalGamePlayer.get().getShipSet()));
+            dto.put("salvoes", makeSalvoDTO(optionalGamePlayer.get().getGame().getGamePlayerSet()));
         }
         return dto;
     }
@@ -72,6 +73,24 @@ public class SalvoController {
         Map<String,Object> dto = new LinkedHashMap<>();
         dto.put("type",ship.getType());
         dto.put("locations", ship.getShipLocations());
+        return dto;
+    }
+
+    private Map<String, Object> makeSalvoDTO(Set<GamePlayer> gamePlayerSet){
+        List<GamePlayer> gamePlayerList = new ArrayList<>(gamePlayerSet);
+        Map<String,Object> dto = new LinkedHashMap<>();
+        for (GamePlayer gamePlayer : gamePlayerList) {
+            dto.put(gamePlayer.getId().toString(), makeSalvoTurnDTO(gamePlayer.getSalvoSet()));
+        }
+        return dto;
+    }
+
+    private Map<String, Object> makeSalvoTurnDTO(Set<Salvo> salvoSet) {
+        List<Salvo> salvoList = new ArrayList<>(salvoSet);
+        Map<String,Object> dto = new LinkedHashMap<>();
+        for (Salvo salvo: salvoList){
+            dto.put(salvo.getTurn().toString(),salvo.getSalvoLocations());
+        }
         return dto;
     }
 

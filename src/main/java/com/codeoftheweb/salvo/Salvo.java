@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Ship {
+public class Salvo {
 
     //Attributes
     @Id
@@ -15,22 +15,22 @@ public class Ship {
     @GenericGenerator(name = "native", strategy = "native")
     private Long id;
 
-    private String type;
+    private Integer turn;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="gamePlayer_id")
     private GamePlayer gamePlayer;
 
     @ElementCollection
-    @Column(name="shipLocation")
-    private List<String> shipLocations = new ArrayList<>();
+    @Column(name="salvoLocation")
+    private List<String> salvoLocations = new ArrayList<>();
 
     //Constructors
-    public Ship(){}
+    public Salvo(){}
 
-    public Ship(String type, List<String> shipLocations){
-        this.type = type;
-        this.shipLocations = shipLocations;
+    public Salvo(Integer turn, List<String> locations){
+        this.turn = turn;
+        this.salvoLocations = locations;
     }
 
     //Getters and Setters of the Attributes
@@ -38,28 +38,28 @@ public class Ship {
         return this.id;
     }
 
-    public String getType() {
-        return this.type;
+    public Integer getTurn(){
+        return this.turn;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTurn(Integer turn){
+        this.turn=turn;
     }
 
-    public GamePlayer getGamePlayer() {
+    public GamePlayer getGamePlayer(){
         return this.gamePlayer;
     }
 
-    public void setGamePlayer(GamePlayer gamePlayer) {
+    public void setGamePlayer(GamePlayer gamePlayer){
         this.gamePlayer = gamePlayer;
     }
 
-    public List<String> getShipLocations() {
-        return this.shipLocations;
+    public List<String> getSalvoLocations(){
+        return this.salvoLocations;
     }
 
-    public void setShipLocations(List<String> shipLocations) {
-        this.shipLocations = shipLocations;
+    public void setSalvoLocations(List<String> salvoLocations){
+        this.salvoLocations = salvoLocations;
     }
 
     //Other Methods

@@ -15,9 +15,7 @@ var app = new Vue({
         getURLParams: function () {
             var obj = {};
             var search = location.search.substr(1);
-            console.log(search);
             search = search.split("&");
-            console.log(search);
             for (let i = 0; i < search.length; i++) {
                 let subSearch = search[i].split("=");
                 if (!obj[subSearch[0]]) {

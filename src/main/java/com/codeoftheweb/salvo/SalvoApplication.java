@@ -21,7 +21,7 @@ public class SalvoApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(PlayerRepository repository, GameRepository repository2, GamePlayerRepository repository3, ShipRepository respository4) {
+    public CommandLineRunner initData(PlayerRepository repository, GameRepository repository2, GamePlayerRepository repository3, ShipRepository repository4, SalvoRepository repository5) {
         return args -> {
             //Create Players
             Player p1 = new Player("j.bauer@ctu.gov");
@@ -98,99 +98,171 @@ public class SalvoApplication {
             //Create Ships
             Ship s1 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("H2", "H3", "H4")));
             gp1.addShip(s1);
-            respository4.save(s1);
+            repository4.save(s1);
             Ship s2 = new Ship("Submarine", new ArrayList<>(Arrays.asList("E1", "F1", "G1")));
             gp1.addShip(s2);
-            respository4.save(s2);
+            repository4.save(s2);
             Ship s3 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("B4", "B5")));
             gp1.addShip(s3);
-            respository4.save(s3);
+            repository4.save(s3);
             Ship s4 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp2.addShip(s4);
-            respository4.save(s4);
+            repository4.save(s4);
             Ship s5 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("F1", "F2")));
             gp2.addShip(s5);
-            respository4.save(s5);
+            repository4.save(s5);
 
 
             Ship s6 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp3.addShip(s6);
-            respository4.save(s6);
+            repository4.save(s6);
             Ship s7 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
             gp3.addShip(s7);
-            respository4.save(s7);
+            repository4.save(s7);
             Ship s8 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
             gp4.addShip(s8);
-            respository4.save(s8);
+            repository4.save(s8);
             Ship s9 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("G6", "H6")));
             gp4.addShip(s9);
-            respository4.save(s9);
+            repository4.save(s9);
 
 
             Ship s10 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp5.addShip(s10);
-            respository4.save(s10);
+            repository4.save(s10);
             Ship s11 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
             gp5.addShip(s11);
-            respository4.save(s11);
+            repository4.save(s11);
             Ship s12 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
             gp6.addShip(s12);
-            respository4.save(s12);
+            repository4.save(s12);
             Ship s13 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("G6", "H6")));
             gp6.addShip(s13);
-            respository4.save(s13);
+            repository4.save(s13);
 
 
             Ship s14 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp7.addShip(s14);
-            respository4.save(s14);
+            repository4.save(s14);
             Ship s15 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
             gp7.addShip(s15);
-            respository4.save(s15);
+            repository4.save(s15);
             Ship s16 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
             gp8.addShip(s16);
-            respository4.save(s16);
+            repository4.save(s16);
             Ship s17 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("G6", "H6")));
             gp8.addShip(s17);
-            respository4.save(s17);
+            repository4.save(s17);
 
 
             Ship s18 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp9.addShip(s18);
-            respository4.save(s18);
+            repository4.save(s18);
             Ship s19 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
             gp9.addShip(s19);
-            respository4.save(s19);
+            repository4.save(s19);
             Ship s20 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
             gp10.addShip(s20);
-            respository4.save(s20);
+            repository4.save(s20);
             Ship s21 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("G6", "H6")));
             gp10.addShip(s21);
-            respository4.save(s21);
+            repository4.save(s21);
 
 
             Ship s22 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp11.addShip(s22);
-            respository4.save(s22);
+            repository4.save(s22);
             Ship s23 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
             gp11.addShip(s23);
-            respository4.save(s23);
+            repository4.save(s23);
 
 
             Ship s24 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp13.addShip(s24);
-            respository4.save(s24);
+            repository4.save(s24);
             Ship s25 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
             gp13.addShip(s25);
-            respository4.save(s25);
+            repository4.save(s25);
             Ship s26 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
             gp14.addShip(s26);
-            respository4.save(s26);
+            repository4.save(s26);
             Ship s27 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("G6", "H6")));
             gp14.addShip(s27);
-            respository4.save(s27);
+            repository4.save(s27);
 
 
+            //Create Salvoes
+            Salvo salvo1 = new Salvo(1,new ArrayList<>(Arrays.asList("B5", "C5","F1")));
+            gp1.addSalvo(salvo1);
+            repository5.save(salvo1);
+            Salvo salvo2 = new Salvo(1,new ArrayList<>(Arrays.asList("B5", "B5","B6")));
+            gp2.addSalvo(salvo2);
+            repository5.save(salvo2);
+            Salvo salvo3 = new Salvo(2,new ArrayList<>(Arrays.asList("F2", "D5")));
+            gp1.addSalvo(salvo3);
+            repository5.save(salvo3);
+            Salvo salvo4 = new Salvo(2,new ArrayList<>(Arrays.asList("E1", "H3","A2")));
+            gp2.addSalvo(salvo4);
+            repository5.save(salvo4);
+
+
+            Salvo salvo5 = new Salvo(1,new ArrayList<>(Arrays.asList("A2", "A4","G6")));
+            gp3.addSalvo(salvo5);
+            repository5.save(salvo5);
+            Salvo salvo6 = new Salvo(1,new ArrayList<>(Arrays.asList("B5", "D5","C7")));
+            gp4.addSalvo(salvo6);
+            repository5.save(salvo6);
+            Salvo salvo7 = new Salvo(2,new ArrayList<>(Arrays.asList("A3", "H6")));
+            gp3.addSalvo(salvo7);
+            repository5.save(salvo7);
+            Salvo salvo8 = new Salvo(2,new ArrayList<>(Arrays.asList("C5","C6")));
+            gp4.addSalvo(salvo8);
+            repository5.save(salvo8);
+
+
+            Salvo salvo9 = new Salvo(1,new ArrayList<>(Arrays.asList("G6", "H6","A4")));
+            gp5.addSalvo(salvo9);
+            repository5.save(salvo9);
+            Salvo salvo10 = new Salvo(1,new ArrayList<>(Arrays.asList("H1", "H2","H3")));
+            gp6.addSalvo(salvo10);
+            repository5.save(salvo10);
+            Salvo salvo11 = new Salvo(2,new ArrayList<>(Arrays.asList("A2", "A4","D8")));
+            gp5.addSalvo(salvo11);
+            repository5.save(salvo11);
+            Salvo salvo12 = new Salvo(2,new ArrayList<>(Arrays.asList("E1", "F2","G3")));
+            gp6.addSalvo(salvo12);
+            repository5.save(salvo12);
+
+
+            Salvo salvo13 = new Salvo(1,new ArrayList<>(Arrays.asList("A3", "A4","F7")));
+            gp7.addSalvo(salvo13);
+            repository5.save(salvo13);
+            Salvo salvo14 = new Salvo(1,new ArrayList<>(Arrays.asList("B5", "C6","H1")));
+            gp8.addSalvo(salvo14);
+            repository5.save(salvo14);
+            Salvo salvo15 = new Salvo(2,new ArrayList<>(Arrays.asList("A2", "G6","H6")));
+            gp7.addSalvo(salvo15);
+            repository5.save(salvo15);
+            Salvo salvo16 = new Salvo(2,new ArrayList<>(Arrays.asList("C5", "C7","D5")));
+            gp8.addSalvo(salvo16);
+            repository5.save(salvo16);
+
+
+            Salvo salvo17 = new Salvo(1,new ArrayList<>(Arrays.asList("A1", "A2","A3")));
+            gp9.addSalvo(salvo17);
+            repository5.save(salvo17);
+            Salvo salvo18 = new Salvo(1,new ArrayList<>(Arrays.asList("B5", "B6","C7")));
+            gp10.addSalvo(salvo18);
+            repository5.save(salvo18);
+            Salvo salvo19 = new Salvo(2,new ArrayList<>(Arrays.asList("G6", "G7","G8")));
+            gp9.addSalvo(salvo19);
+            repository5.save(salvo19);
+            Salvo salvo20 = new Salvo(2,new ArrayList<>(Arrays.asList("C6", "D6","E6")));
+            gp10.addSalvo(salvo20);
+            repository5.save(salvo20);
+            Salvo salvo21 = new Salvo(3,new ArrayList<>(Arrays.asList("H1", "H8")));
+            gp10.addSalvo(salvo21);
+            repository5.save(salvo21);
         };
     }
 }
