@@ -46,20 +46,67 @@ var app = new Vue({
                 return this.rowNames[inRow] + inColumn;
             }
         },
-        getCellClass: function (i) {
-            var cellPosition = this.getCellPosition(i);
-            var ships = this.gameData.ships;
+        therIsAShip: function(cellPosition, ships){
             for (let j = 0; j < ships.length; j++) {
                 if (ships[j].locations.includes(cellPosition)) {
-                    return "grid-item-withShip";
+                    return true;
                 }
+            }
+            return false;
+        },
+        therIsASalvo: function(cellPosition, salvoes){
+            for (key in salvoes) {
+                if(salvoes[key].includes(cellPosition)){
+                    return [true, key];
+                }
+            }
+            return [false];
+        },
+        getCellClassShips: function (i) {
+            var cellPosition = this.getCellPosition(i);
+            var ships = this.gameData.ships;
+            if(this.therIsAShip(cellPosition, ships)){
+                var salvoes = this.gameData.salvoes[this.searchObj.oponentId];
+                if(this.therIsASalvo(cellPosition, salvoes)[0]){
+                    return "grid-item-Ship-Salvo";
+                }
+                return "grid-item-Ship";
             }
             return "grid-item";
         },
-        getCellName: function (i) {
+        getCellClassSalvoes: function (i) {
+            var cellPosition = this.getCellPosition(i);
+            var salvoes = this.gameData.salvoes[this.searchObj.gp];
+            if(this.therIsASalvo(cellPosition, salvoes)[0]){
+                return "grid-item-Salvo"
+            }
+            return "grid-item";
+        },
+        getCellNameShips: function (i) {
             var cellPosition = this.getCellPosition(i);
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
                 return cellPosition;
+            }else{
+                var salvoes = this.gameData.salvoes[this.searchObj.oponentId];
+                var therIsASalvo = this.therIsASalvo(cellPosition, salvoes);
+                var cellPosition = this.getCellPosition(i);
+                var ships = this.gameData.ships;
+                if(therIsASalvo[0] && this.therIsAShip(cellPosition, ships)){
+                    return therIsASalvo[1];
+                }
+            }
+            return null;
+        },
+        getCellNameSalvoes: function (i) {
+            var cellPosition = this.getCellPosition(i);
+            if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
+                return cellPosition;
+            }else{
+                var salvoes = this.gameData.salvoes[this.searchObj.gp];
+                var therIsASalvo = this.therIsASalvo(cellPosition, salvoes);
+                if(therIsASalvo[0]){
+                    return therIsASalvo[1];
+                }
             }
             return null;
         },
@@ -69,9 +116,11 @@ var app = new Vue({
                 if (gamePlayers[0].id == this.searchObj.gp) {
                     this.currentPlayer = gamePlayers[0].player.email;
                     this.oponentPlayer = gamePlayers[1].player.email;
+                    this.searchObj.oponentId = gamePlayers[1].id;
                 } else {
                     this.currentPlayer = gamePlayers[1].player.email;
                     this.oponentPlayer = gamePlayers[0].player.email;
+                    this.searchObj.oponentId = gamePlayers[0].id;
                 }
             } else {
                 this.currentPlayer = gamePlayers[0].player.email;

@@ -16,11 +16,11 @@
             <h1>Ship Locations!</h1>
             <p>{{currentPlayer}} (you) vs {{oponentPlayer}}</p>
             <div class="gridsBox">
-                <div class="grid-container">
-                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClass(i)">{{getCellName(i)}}</div>
+                <div class="grid-container grid-container-ships">
+                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClassShips(i)">{{getCellNameShips(i)}}</div>
                 </div>
-                <div class="grid-container">
-                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClass(i)">{{getCellName(i)}}</div>
+                <div class="grid-container grid-container-salvoes">
+                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClassSalvoes(i)">{{getCellNameSalvoes(i)}}</div>
                 </div>
             </div>
 

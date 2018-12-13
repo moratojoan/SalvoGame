@@ -226,7 +226,7 @@ public class SalvoApplication {
             Salvo salvo10 = new Salvo(1,new ArrayList<>(Arrays.asList("H1", "H2","H3")));
             gp6.addSalvo(salvo10);
             repository5.save(salvo10);
-            Salvo salvo11 = new Salvo(2,new ArrayList<>(Arrays.asList("A2", "A4","D8")));
+            Salvo salvo11 = new Salvo(2,new ArrayList<>(Arrays.asList("A2", "A3","D8")));
             gp5.addSalvo(salvo11);
             repository5.save(salvo11);
             Salvo salvo12 = new Salvo(2,new ArrayList<>(Arrays.asList("E1", "F2","G3")));
