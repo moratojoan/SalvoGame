@@ -21,7 +21,7 @@ public class SalvoApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(PlayerRepository repository, GameRepository repository2, GamePlayerRepository repository3, ShipRepository repository4, SalvoRepository repository5) {
+    public CommandLineRunner initData(PlayerRepository repository, GameRepository repository2, GamePlayerRepository repository3, ShipRepository repository4, SalvoRepository repository5, ScoreRepository repository6) {
         return args -> {
             //Create Players
             Player p1 = new Player("j.bauer@ctu.gov");
@@ -263,6 +263,26 @@ public class SalvoApplication {
             Salvo salvo21 = new Salvo(3,new ArrayList<>(Arrays.asList("H1", "H8")));
             gp10.addSalvo(salvo21);
             repository5.save(salvo21);
+
+
+            //Create Scores
+            Score sc1 = new Score(g1,p1,0);
+            Score sc2 = new Score(g1,p2,1);
+            Score sc3 = new Score(g2,p1,0);
+            Score sc4 = new Score(g2,p2,1);
+            Score sc5 = new Score(g3,p2,0);
+            Score sc6 = new Score(g3,p4,1);
+            Score sc7 = new Score(g4,p2,0);
+            Score sc8 = new Score(g4,p1,1);
+            repository6.save(sc1);
+            repository6.save(sc2);
+            repository6.save(sc3);
+            repository6.save(sc4);
+            repository6.save(sc5);
+            repository6.save(sc6);
+            repository6.save(sc7);
+            repository6.save(sc8);
+
         };
     }
 }

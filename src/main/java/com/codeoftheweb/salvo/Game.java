@@ -25,6 +25,9 @@ public class Game {
     @OneToMany(mappedBy="game", fetch= FetchType.EAGER)
     private Set<GamePlayer> gamePlayerSet = new HashSet<>();
 
+    @OneToMany(mappedBy="game", fetch= FetchType.EAGER)
+    private Set<Score> scoreSet = new HashSet<>();
+
     //Constructors
     public Game(){
         this.creationDateTime = LocalDateTime.now();
@@ -45,6 +48,10 @@ public class Game {
 
     public Set<GamePlayer> getGamePlayerSet() {
         return this.gamePlayerSet;
+    }
+
+    public Set<Score> getScoreSet(){
+        return this.scoreSet;
     }
 
     //Other Methods

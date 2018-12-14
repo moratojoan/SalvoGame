@@ -25,6 +25,9 @@ public class Player {
     @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
     private Set<GamePlayer> gamePlayerSet = new HashSet<>();
 
+    @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+    private Set<Score> scoreSet = new HashSet<>();
+
     //Constructors
     public Player() {
     }
@@ -50,9 +53,17 @@ public class Player {
         return this.gamePlayerSet;
     }
 
+    public Set<Score> getScoreSet(){
+        return this.scoreSet;
+    }
+
     //Other Methods
     @JsonIgnore
     public List<Game> getGames(){
         return this.gamePlayerSet.stream().map(GamePlayer::getGame).collect(toList());
+    }
+
+    public Score getScore(Game game) {
+        return game.getScoreSet().stream().filter(score -> score.getPlayer().getId().equals(this.id)).findFirst().orElse(null);
     }
 }
