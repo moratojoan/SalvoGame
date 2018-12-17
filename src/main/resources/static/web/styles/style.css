@@ -1,57 +1,67 @@
 .gridsBox {
+  /*flex*/
   display: flex;
   flex-direction: row;
   justify-content: space-around;
 }
 
-
 .grid-container {
   /*box*/
   width: fit-content;
+  padding: 2px;
+
+  /*grid*/
   display: grid;
   grid-template-columns: repeat(11, 50px);
   grid-template-rows: repeat(11, 50px);
   grid-gap: 2px;
-  padding: 2px;
 }
 
-.grid-container-ships{
+.grid-container-ships {
+  /*box*/
   background-color: rgb(171, 214, 248);
 }
 
-.grid-container-salvoes{
+.grid-container-salvoes {
+  /*box*/
   background-color: rgb(250, 210, 164);
 }
 
 .grid-item-Ship,
 .grid-item-Ship-Salvo,
-.grid-item-Salvo{
+.grid-item-Salvo {
   text-align: center;
   line-height: 44px;
 }
 
 .grid-item {
+  /*box*/
+  background-color: rgba(255, 255, 255, 0.8);
+  /*text*/
   text-align: center;
   line-height: 50px;
-  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .grid-item-Ship,
 .grid-item-Ship-Salvo,
-.grid-item-Salvo{
+.grid-item-Salvo {
+  /*box*/
   border: 3px;
   border-style: solid;
   border-color: black;
 }
 
 .grid-item-Ship {
+  /*box*/
   background-color: rgb(8, 53, 87);
 }
 
 .grid-item-Ship-Salvo {
-  background-color:rgb(186, 43, 32);
+  /*box*/
+  background-color: rgb(186, 43, 32);
 }
 
-.grid-item-Salvo{
+.grid-item-Salvo {
+  /*box*/
   background-color: rgb(194, 112, 18);
 }

@@ -10,10 +10,38 @@
 
 <body>
     <div id="app">
-        <h1>Salvo!</h1>
-        <ol>
-            <li v-for="game in gamesData">{{game.created}}<span v-for="player in game.gamePlayers">, {{player.player.email}}</span></li>
-        </ol>
+        <div v-if="!loading">
+            <h1>Salvo!</h1>
+            <h3>Games List</h3>
+            <ol>
+                <li v-for="game in gamesList">
+                    {{game.created}}<span v-for="player in game.gamePlayers">, {{player.player.email}}</span>
+                </li>
+            </ol>
+
+            <table class="rankingTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Total Score</th>
+                        <th>Games Played</th>
+                        <th>W</th>
+                        <th>D</th>
+                        <th>L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="player in leaderBoard">
+                        <td>{{player.email}}</td>
+                        <td>{{player.totalScore}}</td>
+                        <td>{{player.numberOfGamesEnded}}</td>
+                        <td>{{player.wins}}</td>
+                        <td>{{player.draws}}</td>
+                        <td>{{player.losses}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- SCRIPTS -->
