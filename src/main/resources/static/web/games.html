@@ -6,41 +6,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Games</title>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 
 <body>
     <div id="app">
-        <div v-if="!loading">
-            <h1>Salvo!</h1>
-            <h3>Games List</h3>
-            <ol>
-                <li v-for="game in gamesList">
-                    {{game.created}}<span v-for="player in game.gamePlayers">, {{player.player.email}}</span>
-                </li>
-            </ol>
+        <div v-if="!loading" class="content">
+            <h1>Salvo</h1>
+            <div>
+                <h3>Games List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Game ID</th>
+                            <th>Created</th>
+                            <th>Player 1</th>
+                            <th>Player 2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="game in gamesList">
+                            <td>{{game.id}}</td>
+                            <td>{{game.created}}</td>
+                            <td v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</td>
+                            <td v-if="game.gamePlayers.length==1">Waiting for an oponent!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <table class="rankingTable">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Total Score</th>
-                        <th>Games Played</th>
-                        <th>W</th>
-                        <th>D</th>
-                        <th>L</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="player in leaderBoard">
-                        <td>{{player.email}}</td>
-                        <td>{{player.totalScore}}</td>
-                        <td>{{player.numberOfGamesEnded}}</td>
-                        <td>{{player.wins}}</td>
-                        <td>{{player.draws}}</td>
-                        <td>{{player.losses}}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div>
+                <h3>Leaderboard</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Total Score</th>
+                            <th>Games Played</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="player in leaderBoard">
+                            <td>{{player.email}}</td>
+                            <td>{{player.totalScore}}</td>
+                            <td>{{player.numberOfGamesEnded}}</td>
+                            <td>{{player.wins}}</td>
+                            <td>{{player.draws}}</td>
+                            <td>{{player.losses}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

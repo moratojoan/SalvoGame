@@ -14,9 +14,16 @@ var app = new Vue({
                 .then(myData => {
                     this.gamesList = myData;
                     console.log(myData);
-                    this.leaderBoard = this.createLeaderBoardInfo(this.gamesList);
+                    // this.leaderBoard = this.createLeaderBoardInfo(this.gamesList);
+                    this.leaderBoardFetch();
                     this.loading = false;
                 });
+        },
+        leaderBoardFetch: function(){
+            fetch("/api/leaderboard", {
+                method: "GET"
+            }).then(response => response.json())
+            .then(leaderBoardData => this.leaderBoard = leaderBoardData);
         },
         createLeaderBoardInfo: function (gamesList) {
             var playersList = this.createPlayersList(gamesList);
@@ -68,7 +75,7 @@ var app = new Vue({
             var totalScore = 0;
             for (let i = 0; i < gamesList.length; i++) {
                 for (let j = 0; j < gamesList[i].gamePlayers.length; j++) {
-                    if (gamesList[i].gamePlayers[j].player.id === playerId && gamesList[i].gamePlayers[j].score !== undefined) {
+                    if (gamesList[i].gamePlayers[j].player.id === playerId && gamesList[i].gamePlayers[j].score !== null) {
                         totalScore += gamesList[i].gamePlayers[j].score;
                     }
                 }
@@ -79,7 +86,7 @@ var app = new Vue({
             var totalGamesEnded = 0;
             for (let i = 0; i < gamesList.length; i++) {
                 for (let j = 0; j < gamesList[i].gamePlayers.length; j++) {
-                    if (gamesList[i].gamePlayers[j].player.id === playerId && gamesList[i].gamePlayers[j].score !== undefined) {
+                    if (gamesList[i].gamePlayers[j].player.id === playerId && gamesList[i].gamePlayers[j].score !== null) {
                         totalGamesEnded++;
                     }
                 }

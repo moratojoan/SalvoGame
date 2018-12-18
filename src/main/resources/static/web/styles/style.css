@@ -1,3 +1,15 @@
+.content{
+  /*box*/
+  width: 1200px;
+  margin: auto;
+}
+
+h1,
+h3,
+h4 {
+  text-align: center;
+}
+
 .gridsBox {
   /*flex*/
   display: flex;
@@ -64,4 +76,18 @@
 .grid-item-Salvo {
   /*box*/
   background-color: rgb(194, 112, 18);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }

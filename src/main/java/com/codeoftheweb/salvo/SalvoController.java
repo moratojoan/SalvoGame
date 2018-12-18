@@ -21,9 +21,12 @@ public class SalvoController {
     @Autowired
     private GamePlayerRepository gamePlayerRepository;
 
+    @Autowired
+    private PlayerRepository playerRepository;
+
     //Request Methods
     @RequestMapping("/games")
-    public List<Object> getAllGames(){
+    public List<Map<String,Object>> getAllGames(){
         return gameRepository.findAll().stream().map(this::makeGameDTO).collect(toList());
     }
 
@@ -38,6 +41,11 @@ public class SalvoController {
         return dto;
     }
 
+    @RequestMapping("/leaderboard")
+    public List<Map<String,Object>> getLeaderboard(){
+        return playerRepository.findAll().stream().map(this::makeLeaderboardMapDTO).collect(toList());
+    }
+
     //DTO Methods
     private Map<String,Object> makeGameDTO(Game game){
         Map<String, Object> dto = new LinkedHashMap<>();
@@ -48,7 +56,7 @@ public class SalvoController {
     }
 
     private List<Map<String,Object>> makeListGamePlayerDTO(Set<GamePlayer> gamePlayerSet) {
-        return gamePlayerSet.stream().map(this::makeGamePlayerDTO).collect(toList());
+        return gamePlayerSet.stream().sorted(Comparator.comparing(GamePlayer::getId)).map(this::makeGamePlayerDTO).collect(toList());
     }
 
     private Map<String,Object> makeGamePlayerDTO(GamePlayer gamePlayer){
@@ -57,6 +65,8 @@ public class SalvoController {
         dto.put("player", makePlayerDTO(gamePlayer.getPlayer()));
         if(gamePlayer.getPlayer().getScore(gamePlayer.getGame())!=null){
             dto.put("score", gamePlayer.getPlayer().getScore(gamePlayer.getGame()).getScore());
+        } else {
+            dto.put("score", null);
         }
         return dto;
     }
@@ -94,6 +104,19 @@ public class SalvoController {
         for (Salvo salvo: salvoList){
             dto.put(salvo.getTurn().toString(),salvo.getSalvoLocations());
         }
+        return dto;
+    }
+
+    private Map<String, Object> makeLeaderboardMapDTO(Player player) {
+        Map<String,Object> dto = new LinkedHashMap<>();
+        dto.put("id", player.getId());
+        dto.put("email", player.getUserName());
+        List<Double> scoresList = player.getGamePlayerSet().stream().filter(gamePlayer -> !Objects.isNull(gamePlayer.getScore())).map(gamePlayer -> gamePlayer.getScore().getScore()).collect(toList());
+        dto.put("totalScore", scoresList.stream().mapToDouble(value -> value).sum());
+        dto.put("numberOfGamesEnded",scoresList.size());
+        dto.put("wins",scoresList.stream().filter(value -> value==1).collect(toList()).size());
+        dto.put("draws",scoresList.stream().filter(value -> value==0.5).collect(toList()).size());
+        dto.put("losses",scoresList.stream().filter(value -> value==0).collect(toList()).size());
         return dto;
     }
 

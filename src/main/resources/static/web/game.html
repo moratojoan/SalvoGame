@@ -12,18 +12,24 @@
 
 <body>
     <div id="app">
-        <div v-if="!loading">
-            <h1>Ship Locations!</h1>
-            <p>{{currentPlayer}} (you) vs {{oponentPlayer}}</p>
+        <div v-if="!loading" class="content">
+            <h1>Ship Locations</h1>
             <div class="gridsBox">
-                <div class="grid-container grid-container-ships">
-                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClassShips(i)">{{getCellNameShips(i)}}</div>
+                <div>
+                    <h3>Your Ships</h3>
+                    <h4>{{gamePlayersObj.gp.email}}</h4>
+                    <div class="grid-container grid-container-ships">
+                        <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClassShips(i)">{{getCellNameShips(i)}}</div>
+                    </div>
                 </div>
-                <div class="grid-container grid-container-salvoes">
-                    <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClassSalvoes(i)">{{getCellNameSalvoes(i)}}</div>
+                <div>
+                    <h3>Oponent</h3>
+                    <h4>{{gamePlayersObj.oponent.email}}</h4>
+                    <div class="grid-container grid-container-salvoes">
+                        <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" v-bind:class="getCellClassSalvoes(i)">{{getCellNameSalvoes(i)}}</div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -34,5 +40,5 @@
     <!-- JS -->
     <script src="scripts/game.js"></script>
 </body>
- 
+
 </html>

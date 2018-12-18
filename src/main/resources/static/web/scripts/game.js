@@ -5,25 +5,37 @@ var app = new Vue({
         rowNames: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         columnNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
         urlApiGameViewGPID: "/api/game_view/",
-        searchObj: null,
+        gamePlayersObj: {
+            gp: {
+                id: null,
+                email: null
+            },
+            oponent: {
+                id: null,
+                email: null
+            }
+        },
         gameData: null,
-        currentPlayer: null,
-        oponentPlayer: null,
         loading: true
     },
     methods: {
         getURLParams: function () {
-            var obj = {};
-            var search = location.search.substr(1);
-            search = search.split("&");
-            for (let i = 0; i < search.length; i++) {
-                let subSearch = search[i].split("=");
-                if (!obj[subSearch[0]]) {
-                    obj[subSearch[0]] = subSearch[1];
-                }
-            }
-            this.searchObj = obj;
-            console.log(this.searchObj);
+            // var obj = {};
+            // var search = location.search.substr(1);
+            // search = search.split("&");
+            // for (let i = 0; i < search.length; i++) {
+            //     let subSearch = search[i].split("=");
+            //     if (!obj[subSearch[0]]) {
+            //         obj[subSearch[0]] = {
+            //             id: subSearch[1] * 1
+            //         };
+            //     }
+            // }
+            // this.gamePlayersObj = obj;
+            // console.log(this.gamePlayersObj);
+
+            var parsedUrl = new URL(window.location.href);
+            this.gamePlayersObj.gp.id = parsedUrl.searchParams.get("gp")*1;
         },
         startFetch: function (url) {
             fetch(url, {
@@ -32,7 +44,7 @@ var app = new Vue({
                 .then(myData => {
                     this.gameData = myData;
                     console.log(myData);
-                    this.playerUserNames();
+                    this.fillGamePlayersObj();
                     this.loading = false;
                 });
         },
@@ -46,7 +58,7 @@ var app = new Vue({
                 return this.rowNames[inRow] + inColumn;
             }
         },
-        therIsAShip: function(cellPosition, ships){
+        therIsAShip: function (cellPosition, ships) {
             for (let j = 0; j < ships.length; j++) {
                 if (ships[j].locations.includes(cellPosition)) {
                     return true;
@@ -54,9 +66,9 @@ var app = new Vue({
             }
             return false;
         },
-        therIsASalvo: function(cellPosition, salvoes){
+        therIsASalvo: function (cellPosition, salvoes) {
             for (key in salvoes) {
-                if(salvoes[key].includes(cellPosition)){
+                if (salvoes[key].includes(cellPosition)) {
                     return [true, key];
                 }
             }
@@ -65,9 +77,9 @@ var app = new Vue({
         getCellClassShips: function (i) {
             var cellPosition = this.getCellPosition(i);
             var ships = this.gameData.ships;
-            if(this.therIsAShip(cellPosition, ships)){
-                var salvoes = this.gameData.salvoes[this.searchObj.oponentId];
-                if(this.therIsASalvo(cellPosition, salvoes)[0]){
+            if (this.therIsAShip(cellPosition, ships)) {
+                var salvoes = this.gameData.salvoes[this.gamePlayersObj.oponent.id];
+                if (this.therIsASalvo(cellPosition, salvoes)[0]) {
                     return "grid-item-Ship-Salvo";
                 }
                 return "grid-item-Ship";
@@ -76,8 +88,8 @@ var app = new Vue({
         },
         getCellClassSalvoes: function (i) {
             var cellPosition = this.getCellPosition(i);
-            var salvoes = this.gameData.salvoes[this.searchObj.gp];
-            if(this.therIsASalvo(cellPosition, salvoes)[0]){
+            var salvoes = this.gameData.salvoes[this.gamePlayersObj.gp.id];
+            if (this.therIsASalvo(cellPosition, salvoes)[0]) {
                 return "grid-item-Salvo"
             }
             return "grid-item";
@@ -86,12 +98,12 @@ var app = new Vue({
             var cellPosition = this.getCellPosition(i);
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
                 return cellPosition;
-            }else{
-                var salvoes = this.gameData.salvoes[this.searchObj.oponentId];
+            } else {
+                var salvoes = this.gameData.salvoes[this.gamePlayersObj.oponent.id];
                 var therIsASalvo = this.therIsASalvo(cellPosition, salvoes);
                 var cellPosition = this.getCellPosition(i);
                 var ships = this.gameData.ships;
-                if(therIsASalvo[0] && this.therIsAShip(cellPosition, ships)){
+                if (therIsASalvo[0] && this.therIsAShip(cellPosition, ships)) {
                     return therIsASalvo[1];
                 }
             }
@@ -101,35 +113,35 @@ var app = new Vue({
             var cellPosition = this.getCellPosition(i);
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
                 return cellPosition;
-            }else{
-                var salvoes = this.gameData.salvoes[this.searchObj.gp];
+            } else {
+                var salvoes = this.gameData.salvoes[this.gamePlayersObj.gp.id];
                 var therIsASalvo = this.therIsASalvo(cellPosition, salvoes);
-                if(therIsASalvo[0]){
+                if (therIsASalvo[0]) {
                     return therIsASalvo[1];
                 }
             }
             return null;
         },
-        playerUserNames: function () {
+        fillGamePlayersObj: function () {
             var gamePlayers = this.gameData.gamePlayers;
             if (gamePlayers.length == 2) {
-                if (gamePlayers[0].id == this.searchObj.gp) {
-                    this.currentPlayer = gamePlayers[0].player.email;
-                    this.oponentPlayer = gamePlayers[1].player.email;
-                    this.searchObj.oponentId = gamePlayers[1].id;
+                if (gamePlayers[0].id == this.gamePlayersObj.gp.id) {
+                    this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
+                    this.gamePlayersObj.oponent.id = gamePlayers[1].id;
+                    this.gamePlayersObj.oponent.email = gamePlayers[1].player.email;
                 } else {
-                    this.currentPlayer = gamePlayers[1].player.email;
-                    this.oponentPlayer = gamePlayers[0].player.email;
-                    this.searchObj.oponentId = gamePlayers[0].id;
+                    this.gamePlayersObj.gp.email = gamePlayers[1].player.email;
+                    this.gamePlayersObj.oponent.id = gamePlayers[0].id;
+                    this.gamePlayersObj.oponent.email = gamePlayers[0].player.email;
                 }
             } else {
-                this.currentPlayer = gamePlayers[0].player.email;
-                this.oponentPlayer = "'WAITING FOR AN OPONENT!'";
+                this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
+                this.gamePlayersObj.oponent.email =  "'WAITING FOR AN OPONENT!'";
             }
         }
     },
     created: function () {
         this.getURLParams();
-        this.startFetch(this.urlApiGameViewGPID + this.searchObj.gp);
+        this.startFetch(this.urlApiGameViewGPID + this.gamePlayersObj.gp.id);
     }
 });

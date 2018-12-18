@@ -116,7 +116,7 @@ public class SalvoApplication {
             Ship s6 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp3.addShip(s6);
             repository4.save(s6);
-            Ship s7 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
+            Ship s7 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "C7")));
             gp3.addShip(s7);
             repository4.save(s7);
             Ship s8 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
@@ -130,7 +130,7 @@ public class SalvoApplication {
             Ship s10 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp5.addShip(s10);
             repository4.save(s10);
-            Ship s11 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
+            Ship s11 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "C7")));
             gp5.addShip(s11);
             repository4.save(s11);
             Ship s12 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
@@ -144,7 +144,7 @@ public class SalvoApplication {
             Ship s14 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp7.addShip(s14);
             repository4.save(s14);
-            Ship s15 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
+            Ship s15 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "C7")));
             gp7.addShip(s15);
             repository4.save(s15);
             Ship s16 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
@@ -158,7 +158,7 @@ public class SalvoApplication {
             Ship s18 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp9.addShip(s18);
             repository4.save(s18);
-            Ship s19 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
+            Ship s19 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "C7")));
             gp9.addShip(s19);
             repository4.save(s19);
             Ship s20 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
@@ -172,7 +172,7 @@ public class SalvoApplication {
             Ship s22 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp11.addShip(s22);
             repository4.save(s22);
-            Ship s23 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
+            Ship s23 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "C7")));
             gp11.addShip(s23);
             repository4.save(s23);
 
@@ -180,7 +180,7 @@ public class SalvoApplication {
             Ship s24 = new Ship("Destroyer", new ArrayList<>(Arrays.asList("B5", "C5", "D5")));
             gp13.addShip(s24);
             repository4.save(s24);
-            Ship s25 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "D6")));
+            Ship s25 = new Ship("Patrol Boat", new ArrayList<>(Arrays.asList("C6", "C7")));
             gp13.addShip(s25);
             repository4.save(s25);
             Ship s26 = new Ship("Submarine", new ArrayList<>(Arrays.asList("A2", "A3", "A4")));
@@ -266,14 +266,14 @@ public class SalvoApplication {
 
 
             //Create Scores
-            Score sc1 = new Score(g1,p1,0);
-            Score sc2 = new Score(g1,p2,1);
-            Score sc3 = new Score(g2,p1,0);
-            Score sc4 = new Score(g2,p2,1);
-            Score sc5 = new Score(g3,p2,0);
-            Score sc6 = new Score(g3,p4,1);
-            Score sc7 = new Score(g4,p2,0);
-            Score sc8 = new Score(g4,p1,1);
+            Score sc1 = new Score(g1,p1,1.0);
+            Score sc2 = new Score(g1,p2,1.0);
+            Score sc3 = new Score(g2,p1,0.5);
+            Score sc4 = new Score(g2,p2,0.5);
+            Score sc5 = new Score(g3,p2,0.0);
+            Score sc6 = new Score(g3,p4,1.0);
+            Score sc7 = new Score(g4,p2,0.5);
+            Score sc8 = new Score(g4,p1,0.5);
             repository6.save(sc1);
             repository6.save(sc2);
             repository6.save(sc3);

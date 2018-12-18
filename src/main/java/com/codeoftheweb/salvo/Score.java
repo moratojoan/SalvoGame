@@ -22,14 +22,14 @@ public class Score {
     @JoinColumn(name="player_id")
     private Player player;
 
-    private Integer score;
+    private Double score;
 
     private LocalDateTime finishDate;
 
     //Constructors
     public Score() {}
 
-    public Score(Game game, Player player, Integer score) {
+    public Score(Game game, Player player, Double score) {
         this.game = game;
         this.player = player;
         this.score = score;
@@ -57,11 +57,11 @@ public class Score {
         this.player = player;
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return this.score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 
