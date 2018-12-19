@@ -2,11 +2,32 @@ var app = new Vue({
     el: "#app",
     data: {
         urlApiGames: "/api/games",
+        urlApiLeaderBoard: "/api/leaderboard",
         gamesList: null,
         leaderBoard: null,
         loading: true
     },
     methods: {
+        //FetchList with Promise.all()
+        fetchJson: function (url, init) {
+            return fetch(url, init).then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error(response.statusText);
+            });
+        },
+        fetchJsonList: function (urls, init){
+            return Promise.all(urls.map(url => this.fetchJson(url, init)));
+        },
+        startFetchList: function(urls, init){
+            this.fetchJsonList(urls, init).then(values => {
+                this.gamesList = values[0];
+                this.leaderBoard = values[1];
+                this.loading = false;
+            });
+        },
+        //Fetch inside another Fetch
         startFetch: function (url) {
             fetch(url, {
                     method: "GET"
@@ -19,12 +40,19 @@ var app = new Vue({
                     this.loading = false;
                 });
         },
-        leaderBoardFetch: function(){
+        leaderBoardFetch: function () {
             fetch("/api/leaderboard", {
-                method: "GET"
-            }).then(response => response.json())
-            .then(leaderBoardData => this.leaderBoard = leaderBoardData);
+                    method: "GET"
+                }).then(response => response.json())
+                .then(leaderBoardData => this.leaderBoard = leaderBoardData);
         },
+        //Method to convert milliseds to StringHour
+        convertMillisecondsToDate: function(milliseconds){
+            var date = new Date(milliseconds);
+            var dateString = date.getDate() +"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" - "+date.getHours()+":"+date.getMinutes();
+            return dateString;
+        },
+        //Methods to create the Leaderboard Table. But with the second fetch, these functions are not needed.
         createLeaderBoardInfo: function (gamesList) {
             var playersList = this.createPlayersList(gamesList);
             for (let i = 0; i < playersList.length; i++) {
@@ -35,17 +63,17 @@ var app = new Vue({
                 playersList[i].losses = this.getNumberOfLosses(gamesList, playersList[i].id);
             }
 
-            playersList.sort((a,b) => {
-                if(a.totalScore - b.totalScore > 0){
+            playersList.sort((a, b) => {
+                if (a.totalScore - b.totalScore > 0) {
                     return -1;
-                } else if(a.totalScore - b.totalScore < 0){
+                } else if (a.totalScore - b.totalScore < 0) {
                     return 1;
-                }else{
-                    if(a.numberOfGamesEnded - b.numberOfGamesEnded > 0){
+                } else {
+                    if (a.numberOfGamesEnded - b.numberOfGamesEnded > 0) {
                         return -1;
-                    } else if(a.numberOfGamesEnded - b.numberOfGamesEnded < 0){
+                    } else if (a.numberOfGamesEnded - b.numberOfGamesEnded < 0) {
                         return 1;
-                    }else{
+                    } else {
                         return 0;
                     }
                 }
@@ -128,7 +156,10 @@ var app = new Vue({
         }
     },
     created: function () {
-        this.startFetch(this.urlApiGames);
+        // this.startFetch(this.urlApiGames);
+        var urls = [this.urlApiGames, this.urlApiLeaderBoard];
+        var init = {method: "GET"};
+        this.startFetchList(urls,init);
     }
 
 });

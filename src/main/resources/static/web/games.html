@@ -27,7 +27,7 @@
                     <tbody>
                         <tr v-for="game in gamesList">
                             <td>{{game.id}}</td>
-                            <td>{{game.created}}</td>
+                            <td>{{convertMillisecondsToDate(game.created)}}</td>
                             <td v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</td>
                             <td v-if="game.gamePlayers.length==1">Waiting for an oponent!</td>
                         </tr>

@@ -4,6 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public class GamePlayer {
     @JoinColumn(name="game_id")
     private Game game;
 
-    private LocalDateTime joinedDateTime;
+    private Date joinedDateTime;
 
     @OneToMany(mappedBy="gamePlayer", fetch= FetchType.EAGER)
     private Set<Ship> shipSet = new HashSet<>();
@@ -39,7 +40,7 @@ public class GamePlayer {
     public GamePlayer(Player player, Game game){
         this.player = player;
         this.game = game;
-        this.joinedDateTime = LocalDateTime.now();
+        this.joinedDateTime = new Date();
     }
 
     //Getters and Setters of the Attributes
@@ -63,11 +64,11 @@ public class GamePlayer {
         this.game = game;
     }
 
-    public LocalDateTime getJoinedDateTime() {
+    public Date getJoinedDateTime() {
         return this.joinedDateTime;
     }
 
-    public void setJoinedDateTime(LocalDateTime joinedDateTime) {
+    public void setJoinedDateTime(Date joinedDateTime) {
         this.joinedDateTime = joinedDateTime;
     }
 
