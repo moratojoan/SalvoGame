@@ -25,10 +25,10 @@ public class SalvoApplication {
     public CommandLineRunner initData(PlayerRepository repository, GameRepository repository2, GamePlayerRepository repository3, ShipRepository repository4, SalvoRepository repository5, ScoreRepository repository6) {
         return args -> {
             //Create Players
-            Player p1 = new Player("j.bauer@ctu.gov");
-            Player p2 = new Player("c.obrian@ctu.gov");
-            Player p3 = new Player("kim_bauer@gmail.com");
-            Player p4 = new Player("t.almeida@ctu.gov");
+            Player p1 = new Player("j.bauer@ctu.gov","24");
+            Player p2 = new Player("c.obrian@ctu.gov","42");
+            Player p3 = new Player("kim_bauer@gmail.com","kb");
+            Player p4 = new Player("t.almeida@ctu.gov","mole");
             repository.save(p1);
             repository.save(p2);
             repository.save(p3);
