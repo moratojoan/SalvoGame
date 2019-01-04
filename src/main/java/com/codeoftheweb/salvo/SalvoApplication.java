@@ -44,7 +44,12 @@ public class SalvoApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(PlayerRepository repository, GameRepository repository2, GamePlayerRepository repository3, ShipRepository repository4, SalvoRepository repository5, ScoreRepository repository6) {
+    public CommandLineRunner initData(PlayerRepository repository,
+                                      GameRepository repository2,
+                                      GamePlayerRepository repository3,
+                                      ShipRepository repository4,
+                                      SalvoRepository repository5,
+                                      ScoreRepository repository6) {
         return args -> {
             //Create Players
             Player p1 = new Player("j.bauer@ctu.gov", passwordEncoder().encode("24"));
@@ -342,6 +347,10 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                .antMatchers("/rest/**").denyAll()
+                .antMatchers("/api/games").permitAll()
+                .antMatchers("/api/leaderboard").permitAll()
+                .antMatchers("/api/game_view/**").hasAuthority("USER")
                 .antMatchers("/web/games.html").permitAll()
                 .antMatchers("/web/game.html").hasAuthority("USER")
                 .and()

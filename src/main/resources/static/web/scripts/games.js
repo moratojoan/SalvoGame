@@ -4,6 +4,7 @@ var app = new Vue({
         urlApiGames: "/api/games",
         urlApiLeaderBoard: "/api/leaderboard",
         gamesList: null,
+        currentPlayer: null,
         leaderBoard: null,
         loading: true
     },
@@ -22,7 +23,10 @@ var app = new Vue({
         },
         startFetchList: function(urls, init){
             this.fetchJsonList(urls, init).then(values => {
-                this.gamesList = values[0];
+                this.gamesList = values[0].games;
+                if(values[0].player){
+                    this.currentPlayer = values[0].player;
+                }
                 this.leaderBoard = values[1];
                 this.loading = false;
             });

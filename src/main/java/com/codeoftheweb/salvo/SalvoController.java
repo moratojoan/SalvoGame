@@ -1,6 +1,8 @@
 package com.codeoftheweb.salvo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,43 +28,65 @@ public class SalvoController {
 
     //Request Methods
     @RequestMapping("/games")
-    public List<Map<String,Object>> getAllGames(){
-        return gameRepository.findAll().stream().map(this::makeGameDTO).collect(toList());
+    public Map<String,Object> getMapOfCurrentPlayerAndAllGamesDTO(Authentication authentication){
+        return makeMapOfCurrentPlayerAndAllGamesDTO(authentication);
     }
 
     @RequestMapping("/game_view/{nn}")
-    public Map<String, Object> getGamePlayerById(@PathVariable("nn") long gpId){
+    public Map<String, Object> getMapOfGamePlayerByIdDTO(@PathVariable("nn") long gpId){
+        return makeMapOfGamePlayerByIdDTO(gpId);
+    }
+
+    @RequestMapping("/leaderboard")
+    public List<Map<String,Object>> getListOfLeaderboardDTO(){
+        return makeListOfLeaderboardDTO(playerRepository.findAll());
+    }
+
+    //Support Methods
+    private boolean isUserLoggedIn(Authentication authentication) {
+        return !(authentication == null || authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    //DTO Methods
+    private Map<String,Object> makeMapOfCurrentPlayerAndAllGamesDTO(Authentication authentication){
+        Map<String, Object> dto = new LinkedHashMap<>();
+        if(isUserLoggedIn(authentication)){
+            dto.put("player",makeMapOfPlayerDTO(playerRepository.findByUserName(authentication.getName())));
+        }
+        dto.put("games", makeListOfGamesDTO(gameRepository.findAll()));
+        return dto;
+    }
+
+    private List<Map<String,Object>> makeListOfGamesDTO(List<Game> gameList){
+        return gameList.stream().map(this::makeMapOfGameDTO).collect(toList());
+    }
+
+    private Map<String, Object> makeMapOfGamePlayerByIdDTO(long gpId){
         Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(gpId);
-        Map<String, Object> dto = optionalGamePlayer.map(gamePlayer -> makeGameDTO(gamePlayer.getGame())).orElse(null);
+        Map<String, Object> dto = optionalGamePlayer.map(gamePlayer -> makeMapOfGameDTO(gamePlayer.getGame())).orElse(null);
         if(dto != null){
-            dto.put("ships", makeListShipDTO(optionalGamePlayer.get().getShipSet()));
-            dto.put("salvoes", makeSalvoDTO(optionalGamePlayer.get().getGame().getGamePlayerSet()));
+            dto.put("ships", makeListOfShipsDTO(optionalGamePlayer.get().getShipSet()));
+            dto.put("salvoes", makeMapOfSalvoDTO(optionalGamePlayer.get().getGame().getGamePlayerSet()));
         }
         return dto;
     }
 
-    @RequestMapping("/leaderboard")
-    public List<Map<String,Object>> getLeaderboard(){
-        return playerRepository.findAll().stream().map(this::makeLeaderboardMapDTO).collect(toList());
-    }
-
-    //DTO Methods
-    private Map<String,Object> makeGameDTO(Game game){
+    private Map<String,Object> makeMapOfGameDTO(Game game){
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("id",game.getId());
         dto.put("created",game.getCreationDateTime().getTime());
-        dto.put("gamePlayers", makeListGamePlayerDTO(game.getGamePlayerSet()));
+        dto.put("gamePlayers", makeListOfGamePlayersDTO(game.getGamePlayerSet()));
         return dto;
     }
 
-    private List<Map<String,Object>> makeListGamePlayerDTO(Set<GamePlayer> gamePlayerSet) {
-        return gamePlayerSet.stream().sorted(Comparator.comparing(GamePlayer::getId)).map(this::makeGamePlayerDTO).collect(toList());
+    private List<Map<String,Object>> makeListOfGamePlayersDTO(Set<GamePlayer> gamePlayerSet) {
+        return gamePlayerSet.stream().sorted(Comparator.comparing(GamePlayer::getId)).map(this::makeMapOfGamePlayerDTO).collect(toList());
     }
 
-    private Map<String,Object> makeGamePlayerDTO(GamePlayer gamePlayer){
+    private Map<String,Object> makeMapOfGamePlayerDTO(GamePlayer gamePlayer){
         Map<String,Object> dto = new LinkedHashMap<>();
         dto.put("id",gamePlayer.getId());
-        dto.put("player", makePlayerDTO(gamePlayer.getPlayer()));
+        dto.put("player", makeMapOfPlayerDTO(gamePlayer.getPlayer()));
         if(gamePlayer.getPlayer().getScore(gamePlayer.getGame())!=null){
             dto.put("score", gamePlayer.getPlayer().getScore(gamePlayer.getGame()).getScore());
         } else {
@@ -71,46 +95,48 @@ public class SalvoController {
         return dto;
     }
 
-    private Map<String,Object> makePlayerDTO(Player player) {
+    private Map<String,Object> makeMapOfPlayerDTO(Player player) {
         Map<String,Object> dto = new LinkedHashMap<>();
         dto.put("id",player.getId());
         dto.put("email", player.getUserName());
         return dto;
     }
 
-    private List<Map<String,Object>> makeListShipDTO(Set<Ship> shipSet) {
-        return shipSet.stream().map(this::makeShipDTO).collect(toList());
+    private List<Map<String,Object>> makeListOfShipsDTO(Set<Ship> shipSet) {
+        return shipSet.stream().map(this::makeMapOfShipDTO).collect(toList());
     }
 
-    private Map<String,Object> makeShipDTO(Ship ship){
+    private Map<String,Object> makeMapOfShipDTO(Ship ship){
         Map<String,Object> dto = new LinkedHashMap<>();
         dto.put("type",ship.getType());
         dto.put("locations", ship.getShipLocations());
         return dto;
     }
 
-    private Map<String, Object> makeSalvoDTO(Set<GamePlayer> gamePlayerSet){
+    private Map<String, Object> makeMapOfSalvoDTO(Set<GamePlayer> gamePlayerSet){
         List<GamePlayer> gamePlayerList = new ArrayList<>(gamePlayerSet);
         Map<String,Object> dto = new LinkedHashMap<>();
         for (GamePlayer gamePlayer : gamePlayerList) {
-            dto.put(gamePlayer.getId().toString(), makeSalvoTurnDTO(gamePlayer.getSalvoSet()));
+            dto.put(gamePlayer.getId().toString(), makeMapOfSalvoTurnDTO(gamePlayer.getSalvoSet()));
         }
         return dto;
     }
 
-    private Map<String, Object> makeSalvoTurnDTO(Set<Salvo> salvoSet) {
-        List<Salvo> salvoList = new ArrayList<>(salvoSet);
+    private Map<String, Object> makeMapOfSalvoTurnDTO(Set<Salvo> salvoSet) {
         Map<String,Object> dto = new LinkedHashMap<>();
+        List<Salvo> salvoList = new ArrayList<>(salvoSet);
         for (Salvo salvo: salvoList){
             dto.put(salvo.getTurn().toString(),salvo.getSalvoLocations());
         }
         return dto;
     }
 
-    private Map<String, Object> makeLeaderboardMapDTO(Player player) {
-        Map<String,Object> dto = new LinkedHashMap<>();
-        dto.put("id", player.getId());
-        dto.put("email", player.getUserName());
+    private List<Map<String,Object>> makeListOfLeaderboardDTO(List<Player> playerList){
+        return playerList.stream().map(this::makeMapOfPlayerInLeaderboardDTO).collect(toList());
+    }
+
+    private Map<String, Object> makeMapOfPlayerInLeaderboardDTO(Player player) {
+        Map<String, Object> dto = makeMapOfPlayerDTO(player);
         List<Double> scoresList = player.getGamePlayerSet().stream().filter(gamePlayer -> !Objects.isNull(gamePlayer.getScore())).map(gamePlayer -> gamePlayer.getScore().getScore()).collect(toList());
         dto.put("totalScore", scoresList.stream().mapToDouble(value -> value).sum());
         dto.put("numberOfGamesEnded",scoresList.size());
@@ -119,5 +145,4 @@ public class SalvoController {
         dto.put("losses",scoresList.stream().filter(value -> value==0).collect(toList()).size());
         return dto;
     }
-
 }
