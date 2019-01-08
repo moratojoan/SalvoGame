@@ -3,6 +3,11 @@ var app = new Vue({
     data: {
         urlApiGames: "/api/games",
         urlApiLeaderBoard: "/api/leaderboard",
+        urlLogin: "/api/login",
+        urlSignup: "/api/players",
+        formUserName: "",
+        formPassword: "",
+        urlLogout: "api/logout",
         gamesList: null,
         currentPlayer: null,
         leaderBoard: null,
@@ -13,18 +18,132 @@ var app = new Vue({
         fetchJson: function (url, init) {
             return fetch(url, init).then(response => {
                 if (response.ok) {
+                    console.log(response);
                     return response.json();
                 }
                 throw new Error(response.statusText);
             });
         },
-        fetchJsonList: function (urls, init){
+        fetchJsonList: function (urls, init) {
             return Promise.all(urls.map(url => this.fetchJson(url, init)));
         },
-        startFetchList: function(urls, init){
+        startFetchList: function (urls, init) {
             this.fetchJsonList(urls, init).then(values => {
                 this.gamesList = values[0].games;
-                if(values[0].player){
+                if (values[0].player) {
+                    this.currentPlayer = values[0].player;
+                }
+                this.leaderBoard = values[1];
+                this.loading = false;
+            });
+        },
+        //Method to convert milliseds to StringHour
+        convertMillisecondsToDate: function (milliseconds) {
+            var date = new Date(milliseconds);
+            var dateString = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " - " + date.getHours() + ":" + date.getMinutes();
+            return dateString;
+        },
+        login: function () {
+            fetch(this.urlLogin, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    method: 'POST',
+                    body: 'userName=' + this.formUserName + '&password=' + this.formPassword,
+                })
+                .then(response => {
+                    console.log('Request success: ', response);
+                    if(response.status == 200){
+                        location.reload();
+                    }else if(response.status == 401){
+                        alert("Login failed!");
+                    }
+                })
+                .catch(error => {
+                    console.log('Request failure: ', error);
+                });
+        },
+        logout: function () {
+            fetch("/api/logout", {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    method: 'POST',
+                })
+                .then(response => {
+                    console.log('Request success: ', response);
+                    if(response.ok){
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.log('Request failure: ', error);
+                });
+        },
+        signup: function () {
+            fetch(this.urlSignup, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    method: 'POST',
+                    body: 'userName=' + this.formUserName + '&password=' + this.formPassword,
+                })
+                .then(response => {
+                    console.log('Request success: ', response);
+                    if(response.status == 201){
+                        this.login();
+                    }else {
+                        return response.json();
+                    }
+                }).then(data => {
+                    alert(data.error);
+                })
+                .catch(error => {
+                    console.log('Request failure: ', error);
+                });
+        }
+    },
+    created: function () {
+        var urls = [this.urlApiGames, this.urlApiLeaderBoard];
+        var init = {
+            method: "GET"
+        };
+        this.startFetchList(urls, init);
+    }
+});
+
+//old version: Two options for the fetch and two options for the leaderboard.
+var app2 = new Vue({
+    el: "#app2",
+    data: {
+        urlApiGames: "/api/games",
+        urlApiLeaderBoard: "/api/leaderboard",
+        gamesList: null,
+        currentPlayer: null,
+        leaderBoard: null,
+        loading: true
+    },
+    methods: {
+        //FetchList with Promise.all()
+        fetchJson: function (url, init) {
+            return fetch(url, init).then(response => {
+                if (response.ok) {
+                    console.log(response);
+                    return response.json();
+                }
+                throw new Error(response.statusText);
+            });
+        },
+        fetchJsonList: function (urls, init) {
+            return Promise.all(urls.map(url => this.fetchJson(url, init)));
+        },
+        startFetchList: function (urls, init) {
+            this.fetchJsonList(urls, init).then(values => {
+                this.gamesList = values[0].games;
+                if (values[0].player) {
                     this.currentPlayer = values[0].player;
                 }
                 this.leaderBoard = values[1];
@@ -51,9 +170,9 @@ var app = new Vue({
                 .then(leaderBoardData => this.leaderBoard = leaderBoardData);
         },
         //Method to convert milliseds to StringHour
-        convertMillisecondsToDate: function(milliseconds){
+        convertMillisecondsToDate: function (milliseconds) {
             var date = new Date(milliseconds);
-            var dateString = date.getDate() +"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" - "+date.getHours()+":"+date.getMinutes();
+            var dateString = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " - " + date.getHours() + ":" + date.getMinutes();
             return dateString;
         },
         //Methods to create the Leaderboard Table. But with the second fetch, these functions are not needed.
@@ -162,8 +281,10 @@ var app = new Vue({
     created: function () {
         // this.startFetch(this.urlApiGames);
         var urls = [this.urlApiGames, this.urlApiLeaderBoard];
-        var init = {method: "GET"};
-        this.startFetchList(urls,init);
+        var init = {
+            method: "GET"
+        };
+        this.startFetchList(urls, init);
     }
 
 });

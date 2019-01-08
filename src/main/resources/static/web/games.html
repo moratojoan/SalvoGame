@@ -13,6 +13,19 @@
     <div id="app">
         <div v-if="!loading" class="content">
             <h1>Salvo</h1>
+            <h2 v-if="currentPlayer!=null">{{currentPlayer.email}}</h2>
+            <form v-if="currentPlayer==null" onsubmit="return false">
+                <label>Name: <input type="text" v-model:name="formUserName"></label>
+                <label>Password: <input type="text" v-model:name="formPassword"></label>
+                <div>
+                    <button v-on:click="login()">Login</button>
+                    <button v-on:click="signup()">Signup</button>
+                </div>
+            </form>
+
+            <form v-else onsubmit="return false">
+                <button v-on:click="logout()">Log out</button>
+            </form>
             <div>
                 <h3>Games List</h3>
                 <table>

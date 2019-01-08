@@ -1,13 +1,16 @@
 package com.codeoftheweb.salvo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -26,25 +29,58 @@ public class SalvoController {
     @Autowired
     private PlayerRepository playerRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     //Request Methods
+//    @GetMapping("/games")
     @RequestMapping("/games")
     public Map<String,Object> getMapOfCurrentPlayerAndAllGamesDTO(Authentication authentication){
         return makeMapOfCurrentPlayerAndAllGamesDTO(authentication);
     }
 
+//    @GetMapping("/game_view/{nn}")
     @RequestMapping("/game_view/{nn}")
     public Map<String, Object> getMapOfGamePlayerByIdDTO(@PathVariable("nn") long gpId){
         return makeMapOfGamePlayerByIdDTO(gpId);
     }
 
+//    @GetMapping("/leaderboard")
     @RequestMapping("/leaderboard")
     public List<Map<String,Object>> getListOfLeaderboardDTO(){
         return makeListOfLeaderboardDTO(playerRepository.findAll());
     }
 
+//    @PostMapping("/players")
+    @RequestMapping(path = "/players", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> createPlayer(@RequestParam String userName, @RequestParam String password) {
+        userName = userName.trim();
+        password = password.trim();
+
+        if (userName.isEmpty() || password.isEmpty()) {
+            return new ResponseEntity<>(makeMap("error", "Missing data"), HttpStatus.FORBIDDEN);
+        }
+
+        Player player = playerRepository.findByUserName(userName);
+        if (player != null) {
+            return new ResponseEntity<>(makeMap("error", "Username already exists"), HttpStatus.CONFLICT);
+        }
+
+        Player newPlayer = playerRepository.save(new Player(userName, passwordEncoder.encode(password)));
+        return new ResponseEntity<>(makeMap("id", newPlayer.getId()), HttpStatus.CREATED);
+    }
+
     //Support Methods
     private boolean isUserLoggedIn(Authentication authentication) {
-        return !(authentication == null || authentication instanceof AnonymousAuthenticationToken);
+        return !(authentication == null ||
+                authentication instanceof AnonymousAuthenticationToken ||
+                authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("USER")));
+    }
+
+    private Map<String, Object> makeMap(String key, Object value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
     }
 
     //DTO Methods
@@ -132,7 +168,23 @@ public class SalvoController {
     }
 
     private List<Map<String,Object>> makeListOfLeaderboardDTO(List<Player> playerList){
-        return playerList.stream().map(this::makeMapOfPlayerInLeaderboardDTO).collect(toList());
+        return playerList.stream().map(this::makeMapOfPlayerInLeaderboardDTO).sorted(this::comparator).collect(toList());
+    }
+
+    private int comparator(Map<String, Object> a, Map<String, Object> b) {
+        if ((double) a.get("totalScore") - (double) b.get("totalScore") > 0) {
+            return -1;
+        } else if ((double) a.get("totalScore") - (double) b.get("totalScore") < 0) {
+            return 1;
+        } else {
+            if ((int) a.get("numberOfGamesEnded") - (int) b.get("numberOfGamesEnded") > 0) {
+                return -1;
+            } else if ((int) a.get("numberOfGamesEnded") - (int) b.get("numberOfGamesEnded") < 0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     }
 
     private Map<String, Object> makeMapOfPlayerInLeaderboardDTO(Player player) {

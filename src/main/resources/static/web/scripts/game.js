@@ -48,6 +48,24 @@ var app = new Vue({
                     this.loading = false;
                 });
         },
+        logout: function () {
+            fetch("/api/logout", {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    method: 'POST',
+                })
+                .then(response => {
+                    console.log('Request success: ', response);
+                    if(response.ok){
+                        window.location.href = "games.html";
+                    }
+                })
+                .catch(error => {
+                    console.log('Request failure: ', error);
+                });
+        },
         getCellPosition: function (i) {
             i--; //The v-for starts with i=1. I want that starts with i=0.
             var inRow = Math.trunc(i / 11);
