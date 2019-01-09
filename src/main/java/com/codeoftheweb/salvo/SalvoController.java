@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -40,9 +41,21 @@ public class SalvoController {
     }
 
 //    @GetMapping("/game_view/{nn}")
+//    @RequestMapping("/game_view/{nn}")
+//    public Map<String, Object> getMapOfGamePlayerByIdDTO(@PathVariable("nn") long gpId){
+//        return makeMapOfGamePlayerByIdDTO(gpId);
+//    }
+
     @RequestMapping("/game_view/{nn}")
-    public Map<String, Object> getMapOfGamePlayerByIdDTO(@PathVariable("nn") long gpId){
-        return makeMapOfGamePlayerByIdDTO(gpId);
+    public ResponseEntity<Map<String,Object>> getMapOfGAmePlayerByIdDTO(@PathVariable("nn") long gpId, Authentication authentication){
+        if(isUserLoggedIn(authentication)){
+            Player currenPlayer = playerRepository.findByUserName(authentication.getName());
+            Set<GamePlayer> gamePlayers = currenPlayer.getGamePlayerSet();
+            if(gamePlayers.stream().anyMatch(gamePlayer -> gamePlayer.getId() == gpId)){
+                return new ResponseEntity<>(makeMapOfGamePlayerByIdDTO(gpId), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(makeMap("error", "UNAUTHORIZED"), HttpStatus.UNAUTHORIZED);
     }
 
 //    @GetMapping("/leaderboard")
@@ -54,11 +67,18 @@ public class SalvoController {
 //    @PostMapping("/players")
     @RequestMapping(path = "/players", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> createPlayer(@RequestParam String userName, @RequestParam String password) {
-        userName = userName.trim();
-        password = password.trim();
+        String userNameTrim = userName.trim();
 
         if (userName.isEmpty() || password.isEmpty()) {
             return new ResponseEntity<>(makeMap("error", "Missing data"), HttpStatus.FORBIDDEN);
+        } else if(userNameTrim.contains(" ")){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. Whitespaces not allowed."), HttpStatus.FORBIDDEN);
+        } else if(!userNameTrim.contains("@")){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. @ is needed."), HttpStatus.FORBIDDEN);
+        } else if(StringUtils.countOccurrencesOf(userNameTrim, "@")>1){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. Only one @ is allowed."), HttpStatus.FORBIDDEN);
+        } else if (password.contains(" ")){
+            return new ResponseEntity<>(makeMap("error", "Invalid password. Whitespaces not allowed."), HttpStatus.FORBIDDEN);
         }
 
         Player player = playerRepository.findByUserName(userName);
@@ -66,7 +86,7 @@ public class SalvoController {
             return new ResponseEntity<>(makeMap("error", "Username already exists"), HttpStatus.CONFLICT);
         }
 
-        Player newPlayer = playerRepository.save(new Player(userName, passwordEncoder.encode(password)));
+        Player newPlayer = playerRepository.save(new Player(userNameTrim, passwordEncoder.encode(password)));
         return new ResponseEntity<>(makeMap("id", newPlayer.getId()), HttpStatus.CREATED);
     }
 

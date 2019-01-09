@@ -354,9 +354,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/logout").hasAuthority("USER")
                 .antMatchers("/api/game_view/**").hasAuthority("USER")
                 .antMatchers("/web/games.html").permitAll()
-                .antMatchers("/web/game.html").hasAuthority("USER")
-                .and()
-                .formLogin();
+                .antMatchers("/web/game.html").hasAuthority("USER");
 
         http.formLogin()
                 .usernameParameter("userName")

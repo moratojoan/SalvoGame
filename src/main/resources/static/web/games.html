@@ -16,7 +16,7 @@
             <h2 v-if="currentPlayer!=null">{{currentPlayer.email}}</h2>
             <form v-if="currentPlayer==null" onsubmit="return false">
                 <label>Name: <input type="text" v-model:name="formUserName"></label>
-                <label>Password: <input type="text" v-model:name="formPassword"></label>
+                <label>Password: <input type="password" v-model:name="formPassword"></label>
                 <div>
                     <button v-on:click="login()">Login</button>
                     <button v-on:click="signup()">Signup</button>
@@ -35,6 +35,7 @@
                             <th>Created</th>
                             <th>Player 1</th>
                             <th>Player 2</th>
+                            <th>Game Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,6 +44,8 @@
                             <td>{{convertMillisecondsToDate(game.created)}}</td>
                             <td v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</td>
                             <td v-if="game.gamePlayers.length==1">Waiting for an oponent!</td>
+                            <td v-if="playerCanJoinThisGame(game)"><div><a v-bind:href="joinGameButtonHref(game)">Join Game</a></div></td>
+                            <td v-else>-</td>
                         </tr>
                     </tbody>
                 </table>

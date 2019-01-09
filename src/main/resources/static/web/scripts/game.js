@@ -42,10 +42,19 @@ var app = new Vue({
                     method: "GET"
                 }).then(response => response.json())
                 .then(myData => {
-                    this.gameData = myData;
-                    console.log(myData);
-                    this.fillGamePlayersObj();
-                    this.loading = false;
+                    if(myData.error){
+                        console.log(myData.error);
+                        alert(myData.error);
+                        history.back();
+                    }else{
+                        this.gameData = myData;
+                        console.log(myData);
+                        this.fillGamePlayersObj();
+                        this.loading = false;
+                    }
+                })
+                .catch(error => {
+                    console.log('Request failure: ', error);
                 });
         },
         logout: function () {
