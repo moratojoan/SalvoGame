@@ -105,21 +105,70 @@ var app = new Vue({
                 });
         },
         //Other Methods
-        playerCanJoinThisGame: function (game) {
+        playerCanEnterThisGame: function (game) {
             if (this.currentPlayer != null) {
                 var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id)
                 return (filterGamePlayers.length == 1);
             }
             return false;
         },
-        joinGameButtonHref: function (game) {
+        enterGameButtonHref: function (game) {
             if (this.currentPlayer != null) {
-                var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id)
+                var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id);
                 if (filterGamePlayers.length == 1) {
-                    return "/web/game.html?gp=" + filterGamePlayers[0].id;
+                    window.location.href = "game.html?gp=" + filterGamePlayers[0].id;
                 }
             }
-            return "#";
+        },
+        createNewGame: function () {
+            fetch("/api/games", {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    method: 'POST',
+                })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (data) {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        window.location = 'game.html?gp=' + data.gpId;
+                    }
+
+                })
+                .catch(function (error) {});
+        },
+        playerCanJoinThisGame: function (game) {
+            if (this.currentPlayer != null) {
+                if (game.gamePlayers.length < 2) {
+                    var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id);
+                    return (filterGamePlayers.length == 0);
+                }
+            }
+            return false;
+        },
+        joinGameButtonHref: function (game) {
+            fetch("/api/game/" + game.id + "/players", {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    method: 'POST',
+                })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (myData) {
+                    if(myData.error){
+                        alert(myData.error);
+                    }else{
+                        window.location.href = "game.html?gp=" + myData.gpId;
+                    }
+                })
+                .catch(function (error) {});
         }
     },
     created: function () {

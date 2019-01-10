@@ -28,6 +28,7 @@
             </form>
             <div>
                 <h3>Games List</h3>
+                <button v-on:click="createNewGame()">Create New Game</button>
                 <table>
                     <thead>
                         <tr>
@@ -44,7 +45,8 @@
                             <td>{{convertMillisecondsToDate(game.created)}}</td>
                             <td v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</td>
                             <td v-if="game.gamePlayers.length==1">Waiting for an oponent!</td>
-                            <td v-if="playerCanJoinThisGame(game)"><div><a v-bind:href="joinGameButtonHref(game)">Join Game</a></div></td>
+                            <td v-if="playerCanEnterThisGame(game)"><button v-on:click="enterGameButtonHref(game)">Enter Game</button></td>
+                            <td v-else-if="playerCanJoinThisGame(game)"><button v-on:click="joinGameButtonHref(game)">Join Game</button></td>
                             <td v-else>-</td>
                         </tr>
                     </tbody>

@@ -46,7 +46,7 @@ var app = new Vue({
                         console.log(myData.error);
                         alert(myData.error);
                         history.back();
-                    }else{
+                    }else {
                         this.gameData = myData;
                         console.log(myData);
                         this.fillGamePlayersObj();
@@ -68,12 +68,15 @@ var app = new Vue({
                 .then(response => {
                     console.log('Request success: ', response);
                     if(response.ok){
-                        window.location.href = "games.html";
+                        this.goToHomePage();
                     }
                 })
                 .catch(error => {
                     console.log('Request failure: ', error);
                 });
+        },
+        goToHomePage: function(){
+            window.location.href = "games.html";
         },
         getCellPosition: function (i) {
             i--; //The v-for starts with i=1. I want that starts with i=0.

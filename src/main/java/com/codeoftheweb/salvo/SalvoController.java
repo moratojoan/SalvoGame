@@ -11,6 +11,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -40,25 +42,19 @@ public class SalvoController {
         return makeMapOfCurrentPlayerAndAllGamesDTO(authentication);
     }
 
-//    @GetMapping("/game_view/{nn}")
-//    @RequestMapping("/game_view/{nn}")
-//    public Map<String, Object> getMapOfGamePlayerByIdDTO(@PathVariable("nn") long gpId){
-//        return makeMapOfGamePlayerByIdDTO(gpId);
-//    }
-
-    @RequestMapping("/game_view/{nn}")
-    public ResponseEntity<Map<String,Object>> getMapOfGAmePlayerByIdDTO(@PathVariable("nn") long gpId, Authentication authentication){
-        if(isUserLoggedIn(authentication)){
-            Player currenPlayer = playerRepository.findByUserName(authentication.getName());
-            Set<GamePlayer> gamePlayers = currenPlayer.getGamePlayerSet();
-            if(gamePlayers.stream().anyMatch(gamePlayer -> gamePlayer.getId() == gpId)){
-                return new ResponseEntity<>(makeMapOfGamePlayerByIdDTO(gpId), HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(makeMap("error", "UNAUTHORIZED"), HttpStatus.UNAUTHORIZED);
+//    @PostMapping("/games")
+    @RequestMapping(path = "/games", method = RequestMethod.POST)
+    public ResponseEntity<Map<String,Object>> getResponseEntityOfCreateNewGamePOST(Authentication authentication){
+        return makeResponseEntityOfCreateNewGamePOST(authentication);
     }
 
-//    @GetMapping("/leaderboard")
+    //    @GetMapping("/game_view/{nn}")
+    @RequestMapping("/game_view/{nn}")
+    public ResponseEntity<Map<String,Object>> getMapOfGAmePlayerByIdDTO(@PathVariable("nn") long gpId, Authentication authentication){
+        return makeResponseEntityOfGamePlayerByIdDTO(gpId, authentication);
+    }
+
+    //    @GetMapping("/leaderboard")
     @RequestMapping("/leaderboard")
     public List<Map<String,Object>> getListOfLeaderboardDTO(){
         return makeListOfLeaderboardDTO(playerRepository.findAll());
@@ -66,28 +62,14 @@ public class SalvoController {
 
 //    @PostMapping("/players")
     @RequestMapping(path = "/players", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, Object>> createPlayer(@RequestParam String userName, @RequestParam String password) {
-        String userNameTrim = userName.trim();
+    public ResponseEntity<Map<String, Object>> getResponseEntityOfCreateNewPlayerPOST(@RequestParam String userName, @RequestParam String password) {
+        return makeResponseEntityOfCreateNewPlayerPOST(userName,password);
+    }
 
-        if (userName.isEmpty() || password.isEmpty()) {
-            return new ResponseEntity<>(makeMap("error", "Missing data"), HttpStatus.FORBIDDEN);
-        } else if(userNameTrim.contains(" ")){
-            return new ResponseEntity<>(makeMap("error", "Invalid email. Whitespaces not allowed."), HttpStatus.FORBIDDEN);
-        } else if(!userNameTrim.contains("@")){
-            return new ResponseEntity<>(makeMap("error", "Invalid email. @ is needed."), HttpStatus.FORBIDDEN);
-        } else if(StringUtils.countOccurrencesOf(userNameTrim, "@")>1){
-            return new ResponseEntity<>(makeMap("error", "Invalid email. Only one @ is allowed."), HttpStatus.FORBIDDEN);
-        } else if (password.contains(" ")){
-            return new ResponseEntity<>(makeMap("error", "Invalid password. Whitespaces not allowed."), HttpStatus.FORBIDDEN);
-        }
-
-        Player player = playerRepository.findByUserName(userName);
-        if (player != null) {
-            return new ResponseEntity<>(makeMap("error", "Username already exists"), HttpStatus.CONFLICT);
-        }
-
-        Player newPlayer = playerRepository.save(new Player(userNameTrim, passwordEncoder.encode(password)));
-        return new ResponseEntity<>(makeMap("id", newPlayer.getId()), HttpStatus.CREATED);
+//    @PostMapping(path = "/game/{nn}/players")
+    @RequestMapping(path = "/game/{nn}/players", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> getResponseEntitiyOfJoinGamePOST(@PathVariable("nn") long gameId, Authentication authentication){
+        return makeResponseEntityOfJoinGamePOST(gameId, authentication);
     }
 
     //Support Methods
@@ -103,6 +85,17 @@ public class SalvoController {
         return map;
     }
 
+    private boolean emailValidate(String email) {
+        String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+
+        Matcher matcher = pattern.matcher(email);
+
+        return matcher.matches();
+    }
+
     //DTO Methods
     private Map<String,Object> makeMapOfCurrentPlayerAndAllGamesDTO(Authentication authentication){
         Map<String, Object> dto = new LinkedHashMap<>();
@@ -115,6 +108,20 @@ public class SalvoController {
 
     private List<Map<String,Object>> makeListOfGamesDTO(List<Game> gameList){
         return gameList.stream().map(this::makeMapOfGameDTO).collect(toList());
+    }
+
+    private ResponseEntity<Map<String, Object>> makeResponseEntityOfGamePlayerByIdDTO(long gpId, Authentication authentication) {
+        if(isUserLoggedIn(authentication)){
+            Player currentPlayer = playerRepository.findByUserName(authentication.getName());
+            Optional<GamePlayer> gpOptional = gamePlayerRepository.findById(gpId);
+            if(gpOptional.isPresent()){
+                GamePlayer gp = gpOptional.get();
+                if(currentPlayer.getId().equals(gp.getPlayer().getId())){
+                    return new ResponseEntity<>(makeMapOfGamePlayerByIdDTO(gpId), HttpStatus.OK);
+                }
+            }
+        }
+        return new ResponseEntity<>(makeMap("error", "UNAUTHORIZED"), HttpStatus.UNAUTHORIZED);
     }
 
     private Map<String, Object> makeMapOfGamePlayerByIdDTO(long gpId){
@@ -216,5 +223,61 @@ public class SalvoController {
         dto.put("draws",scoresList.stream().filter(value -> value==0.5).collect(toList()).size());
         dto.put("losses",scoresList.stream().filter(value -> value==0).collect(toList()).size());
         return dto;
+    }
+
+    private ResponseEntity<Map<String, Object>> makeResponseEntityOfCreateNewPlayerPOST(String userName, String password) {
+        String userNameTrim = userName.trim();
+
+        if (userNameTrim.isEmpty() || password.isEmpty()) {
+            return new ResponseEntity<>(makeMap("error", "Missing data"), HttpStatus.FORBIDDEN);
+        } else if(userNameTrim.contains(" ")){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. Whitespaces not allowed."), HttpStatus.FORBIDDEN);
+        } else if(!userNameTrim.contains("@")){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. @ is needed."), HttpStatus.FORBIDDEN);
+        } else if(StringUtils.countOccurrencesOf(userNameTrim, "@")>1){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. Only one @ is allowed."), HttpStatus.FORBIDDEN);
+        } else if (password.contains(" ")){
+            return new ResponseEntity<>(makeMap("error", "Invalid password. Whitespaces not allowed."), HttpStatus.FORBIDDEN);
+        } else if(!emailValidate(userNameTrim)){
+            return new ResponseEntity<>(makeMap("error", "Invalid email. Regular Expression."), HttpStatus.FORBIDDEN);
+        }
+
+        Player player = playerRepository.findByUserName(userName);
+        if (player != null) {
+            return new ResponseEntity<>(makeMap("error", "Username already exists"), HttpStatus.CONFLICT);
+        }
+
+        Player newPlayer = playerRepository.save(new Player(userNameTrim, passwordEncoder.encode(password)));
+        return new ResponseEntity<>(makeMap("id", newPlayer.getId()), HttpStatus.CREATED);
+    }
+
+    private ResponseEntity<Map<String, Object>> makeResponseEntityOfCreateNewGamePOST(Authentication authentication) {
+        if(isUserLoggedIn(authentication)){
+            Player currentPlayer = playerRepository.findByUserName(authentication.getName());
+            Game newGame = new Game();
+            gameRepository.save(newGame);
+            GamePlayer newGamePlayer = new GamePlayer(currentPlayer,newGame);
+            gamePlayerRepository.save(newGamePlayer);
+            return new ResponseEntity<>(makeMap("gpId",newGamePlayer.getId()),HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(makeMap("error", "Login to create a new game"), HttpStatus.UNAUTHORIZED);
+    }
+
+    private ResponseEntity<Map<String, Object>> makeResponseEntityOfJoinGamePOST(long gameId, Authentication authentication) {
+        if(isUserLoggedIn(authentication)){
+            Optional<Game> optionalGameSelected = gameRepository.findById(gameId);
+            if(optionalGameSelected.isPresent()){
+                Game gameSelected = optionalGameSelected.get();
+                if(gameSelected.getGamePlayerSet().size()<2){
+                    Player currentPlayer = playerRepository.findByUserName(authentication.getName());
+                    GamePlayer newGamePlayer = new GamePlayer(currentPlayer,gameSelected);
+                    gamePlayerRepository.save(newGamePlayer);
+                    return new ResponseEntity<>(makeMap("gpId",newGamePlayer.getId()),HttpStatus.CREATED);
+                }
+                return new ResponseEntity<>(makeMap("error", "Game is full"), HttpStatus.FORBIDDEN);
+            }
+            return new ResponseEntity<>(makeMap("error", "No such game"), HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(makeMap("error", "Login to join game"), HttpStatus.UNAUTHORIZED);
     }
 }
