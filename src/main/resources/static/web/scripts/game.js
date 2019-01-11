@@ -35,18 +35,18 @@ var app = new Vue({
             // console.log(this.gamePlayersObj);
 
             var parsedUrl = new URL(window.location.href);
-            this.gamePlayersObj.gp.id = parsedUrl.searchParams.get("gp")*1;
+            this.gamePlayersObj.gp.id = parsedUrl.searchParams.get("gp") * 1;
         },
         startFetch: function (url) {
             fetch(url, {
                     method: "GET"
                 }).then(response => response.json())
                 .then(myData => {
-                    if(myData.error){
+                    if (myData.error) {
                         console.log(myData.error);
                         alert(myData.error);
                         history.back();
-                    }else {
+                    } else {
                         this.gameData = myData;
                         console.log(myData);
                         this.fillGamePlayersObj();
@@ -67,7 +67,7 @@ var app = new Vue({
                 })
                 .then(response => {
                     console.log('Request success: ', response);
-                    if(response.ok){
+                    if (response.ok) {
                         this.goToHomePage();
                     }
                 })
@@ -75,7 +75,7 @@ var app = new Vue({
                     console.log('Request failure: ', error);
                 });
         },
-        goToHomePage: function(){
+        goToHomePage: function () {
             window.location.href = "games.html";
         },
         getCellPosition: function (i) {
@@ -166,8 +166,41 @@ var app = new Vue({
                 }
             } else {
                 this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
-                this.gamePlayersObj.oponent.email =  "'WAITING FOR AN OPONENT!'";
+                this.gamePlayersObj.oponent.email = "'WAITING FOR AN OPONENT!'";
             }
+        },
+        postShipsToServer: function () {
+            var listOfShips = [{
+                    "type": "destroyer",
+                    "shipLocations": ["A1", "B1", "C1"]
+                },
+                {
+                    "type": "patrol boat",
+                    "shipLocations": ["H5", "H6"]
+                }
+            ];
+
+            fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/ships", {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(listOfShips)
+                })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (myData) {
+                    if (myData.error) {
+                        console.log(myData.error);
+                    } else {
+                        console.log(myData.ok);
+                    }
+                })
+                .catch(function (error) {
+                    console.log('Request failure: ', error);
+                });
         }
     },
     created: function () {
