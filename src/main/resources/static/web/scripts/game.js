@@ -88,7 +88,15 @@ var app = new Vue({
                 return this.rowNames[inRow] + inColumn;
             }
         },
-        therIsAShip: function (cellPosition, ships) {
+        isAMarginCell: function(i){
+            var cellPosition = this.getCellPosition(i);
+            if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition) || i==1) {
+                return true;
+            }
+        },
+        thereIsAShip: function (i) {
+            var cellPosition = this.getCellPosition(i);
+            var ships = this.gameData.ships;
             for (let j = 0; j < ships.length; j++) {
                 if (ships[j].locations.includes(cellPosition)) {
                     return true;
@@ -96,7 +104,9 @@ var app = new Vue({
             }
             return false;
         },
-        therIsASalvo: function (cellPosition, salvoes) {
+        thereIsASalvoOponent: function (i) {
+            var salvoes = this.gameData.salvoes[this.gamePlayersObj.oponent.id];
+            var cellPosition = this.getCellPosition(i);
             for (key in salvoes) {
                 if (salvoes[key].includes(cellPosition)) {
                     return [true, key];
@@ -104,37 +114,24 @@ var app = new Vue({
             }
             return [false];
         },
-        getCellClassShips: function (i) {
-            var cellPosition = this.getCellPosition(i);
-            var ships = this.gameData.ships;
-            if (this.therIsAShip(cellPosition, ships)) {
-                var salvoes = this.gameData.salvoes[this.gamePlayersObj.oponent.id];
-                if (this.therIsASalvo(cellPosition, salvoes)[0]) {
-                    return "grid-item-Ship-Salvo";
-                }
-                return "grid-item-Ship";
-            }
-            return "grid-item";
-        },
-        getCellClassSalvoes: function (i) {
-            var cellPosition = this.getCellPosition(i);
+        thereIsASalvoGP: function (i) {
             var salvoes = this.gameData.salvoes[this.gamePlayersObj.gp.id];
-            if (this.therIsASalvo(cellPosition, salvoes)[0]) {
-                return "grid-item-Salvo"
+            var cellPosition = this.getCellPosition(i);
+            for (key in salvoes) {
+                if (salvoes[key].includes(cellPosition)) {
+                    return [true, key];
+                }
             }
-            return "grid-item";
+            return [false];
         },
         getCellNameShips: function (i) {
             var cellPosition = this.getCellPosition(i);
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
                 return cellPosition;
             } else {
-                var salvoes = this.gameData.salvoes[this.gamePlayersObj.oponent.id];
-                var therIsASalvo = this.therIsASalvo(cellPosition, salvoes);
-                var cellPosition = this.getCellPosition(i);
-                var ships = this.gameData.ships;
-                if (therIsASalvo[0] && this.therIsAShip(cellPosition, ships)) {
-                    return therIsASalvo[1];
+                var thereIsASalvo = this.thereIsASalvoOponent(i);
+                if (thereIsASalvo[0] && this.thereIsAShip(i)) {
+                    return thereIsASalvo[1];
                 }
             }
             return null;
@@ -144,10 +141,9 @@ var app = new Vue({
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
                 return cellPosition;
             } else {
-                var salvoes = this.gameData.salvoes[this.gamePlayersObj.gp.id];
-                var therIsASalvo = this.therIsASalvo(cellPosition, salvoes);
-                if (therIsASalvo[0]) {
-                    return therIsASalvo[1];
+                var thereIsASalvo = this.thereIsASalvoGP(i);
+                if (thereIsASalvo[0]) {
+                    return thereIsASalvo[1];
                 }
             }
             return null;

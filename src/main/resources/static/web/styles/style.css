@@ -1,4 +1,4 @@
-.content{
+.content {
   /*box*/
   width: 1200px;
   margin: auto;
@@ -39,13 +39,6 @@ h4 {
   background-color: rgb(250, 210, 164);
 }
 
-.grid-item-Ship,
-.grid-item-Ship-Salvo,
-.grid-item-Salvo {
-  text-align: center;
-  line-height: 44px;
-}
-
 .grid-item {
   /*box*/
   background-color: rgba(255, 255, 255, 0.8);
@@ -54,26 +47,67 @@ h4 {
   line-height: 50px;
 }
 
-.grid-item-Ship,
-.grid-item-Ship-Salvo,
-.grid-item-Salvo {
-  /*box*/
-  border: 3px;
-  border-style: solid;
-  border-color: black;
+.grid-item,
+.grid-item-GP-Ship {
+  /* Flex*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.grid-item-Ship {
+.grid-item-GP-Ship-Salvo {
+  /*text*/
+  text-align: center;
+  line-height: 44px;
+}
+
+.grid-item-GP-Ship,
+.grid-item-OP-Salvo {
+  /*box*/
+  height: 95%;
+  width: 95%;
+}
+
+.grid-item-OP-Salvo {
+  /*box*/
+  border-radius: 50px;
+}
+
+.grid-item-GP-Ship-Salvo {
+  /*box*/
+  height: 85%;
+  width: 85%;
+  border-radius: 50px;
+  /*text*/
+  text-align: center;
+  line-height: 38px;
+}
+
+.grid-item-GP-Margin{
+    /*box*/
+    height: 100%;
+    width: 100%;
+    background-color: rgba(171, 215, 248, 0.459);
+}
+
+.grid-item-OP-Margin{
+  /*box*/
+  height: 100%;
+  width: 100%;
+  background-color: rgb(250, 210, 164, 0.459);
+}
+
+.grid-item-GP-Ship {
   /*box*/
   background-color: rgb(8, 53, 87);
 }
 
-.grid-item-Ship-Salvo {
+.grid-item-GP-Ship-Salvo {
   /*box*/
   background-color: rgb(186, 43, 32);
 }
 
-.grid-item-Salvo {
+.grid-item-OP-Salvo {
   /*box*/
   background-color: rgb(194, 112, 18);
 }
@@ -83,7 +117,8 @@ table {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   text-align: left;
   padding: 8px;
 }
