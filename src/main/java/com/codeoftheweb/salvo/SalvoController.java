@@ -279,9 +279,12 @@ public class SalvoController {
                 Game gameSelected = optionalGameSelected.get();
                 if(gameSelected.getGamePlayerSet().size()<2){
                     Player currentPlayer = playerRepository.findByUserName(authentication.getName());
-                    GamePlayer newGamePlayer = new GamePlayer(currentPlayer,gameSelected);
-                    gamePlayerRepository.save(newGamePlayer);
-                    return new ResponseEntity<>(makeMap("gpId",newGamePlayer.getId()),HttpStatus.CREATED);
+                    if(gameSelected.getGamePlayerSet().stream().noneMatch(gamePlayer -> gamePlayer.getPlayer().getId().equals(currentPlayer.getId()))){
+                        GamePlayer newGamePlayer = new GamePlayer(currentPlayer,gameSelected);
+                        gamePlayerRepository.save(newGamePlayer);
+                        return new ResponseEntity<>(makeMap("gpId",newGamePlayer.getId()),HttpStatus.CREATED);
+                    }
+                    return new ResponseEntity<>(makeMap("error", "You are already in this game"), HttpStatus.FORBIDDEN);
                 }
                 return new ResponseEntity<>(makeMap("error", "Game is full"), HttpStatus.FORBIDDEN);
             }

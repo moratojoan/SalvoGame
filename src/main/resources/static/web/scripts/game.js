@@ -197,6 +197,48 @@ var app = new Vue({
                 .catch(function (error) {
                     console.log('Request failure: ', error);
                 });
+        },
+        showImg: function (imgId) {
+            document.getElementById(imgId).style.display = "block";
+        },
+        hideImg: function (imgId) {
+            document.getElementById(imgId).style.display = "none";
+        },
+        flipShip: function(divId, imgId) {
+            var div = document.getElementById(divId);
+            var img = document.getElementById(imgId);
+            switch (div.getAttribute("data-direction")) {
+                case "H":
+                    div.setAttribute("data-direction", "V");
+                    div.className = divId + "-" + "V";
+                    img.setAttribute("src", "styles/img/VToH.png");
+                    break;
+                case "V":
+                    div.setAttribute("data-direction", "H");
+                    div.className = divId + "-" + "H";
+                    img.setAttribute("src", "styles/img/HToV.png");
+                    break;
+            }
+        },
+        dragStart: function (ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            setTimeout(() => (document.getElementById(ev.target.id).className = 'invisible'), 0);
+        },
+        dragEnd: function (id) {
+            document.getElementById(id).className = document.getElementById(id).id + "-" + document.getElementById(id).getAttribute("data-direction");
+        },
+        allowDrop: function (ev) {
+            ev.preventDefault();
+        },
+        dragDrop: function(ev) {
+            ev.preventDefault();
+            console.log(ev.target);
+            console.log(ev.target.getAttribute("data-drop"));
+            if (ev.target.getAttribute("data-drop") == "dropable") {
+                var data = ev.dataTransfer.getData("text");
+                document.getElementById(data).className = document.getElementById(data).id;
+                ev.target.appendChild(document.getElementById(data));
+            }
         }
     },
     created: function () {
