@@ -16,7 +16,29 @@ var app = new Vue({
             }
         },
         gameData: null,
-        loading: true
+        loading: true,
+        shipDragged: null,
+        listOfShips: [{
+                type: "Aircraft Carrier",
+                shipLocations: []
+            },
+            {
+                type: "Battleship",
+                shipLocations: []
+            },
+            {
+                type: "Submarine",
+                shipLocations: []
+            },
+            {
+                type: "Destroyer",
+                shipLocations: []
+            },
+            {
+                type: "Patrol Boat",
+                shipLocations: []
+            }
+        ]
     },
     methods: {
         getURLParams: function () {
@@ -78,19 +100,28 @@ var app = new Vue({
         goToHomePage: function () {
             window.location.href = "games.html";
         },
+        getRow: function (i) {
+            //The v-for starts with i=1. I want that starts with i=0.
+            i--;
+            return Math.trunc(i / 11);
+        },
+        getColumn(i) {
+            //The v-for starts with i=1. I want that starts with i=0.
+            i--;
+            return i % 11;
+        },
         getCellPosition: function (i) {
-            i--; //The v-for starts with i=1. I want that starts with i=0.
-            var inRow = Math.trunc(i / 11);
-            var inColumn = i % 11;
+            var inRow = this.getRow(i);
+            var inColumn = this.getColumn(i);
             if (inColumn == 0) {
                 return this.rowNames[inRow]
             } else {
                 return this.rowNames[inRow] + inColumn;
             }
         },
-        isAMarginCell: function(i){
+        isAMarginCell: function (i) {
             var cellPosition = this.getCellPosition(i);
-            if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition) || i==1) {
+            if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition) || i == 1) {
                 return true;
             }
         },
@@ -130,7 +161,7 @@ var app = new Vue({
                 return cellPosition;
             } else {
                 var thereIsASalvo = this.thereIsASalvoOponent(i);
-                if (thereIsASalvo[0] && this.thereIsAShip(i)) {
+                if (thereIsASalvo[0]) {
                     return thereIsASalvo[1];
                 }
             }
@@ -204,42 +235,117 @@ var app = new Vue({
         hideImg: function (imgId) {
             document.getElementById(imgId).style.display = "none";
         },
-        flipShip: function(divId, imgId) {
+        flipShip: function (divId, btnId) {
             var div = document.getElementById(divId);
-            var img = document.getElementById(imgId);
+            var btn = document.getElementById(btnId);
             switch (div.getAttribute("data-direction")) {
                 case "H":
                     div.setAttribute("data-direction", "V");
                     div.className = divId + "-" + "V";
-                    img.setAttribute("src", "styles/img/VToH.png");
+                    btn.setAttribute("src", "styles/img/VToH.png");
                     break;
                 case "V":
                     div.setAttribute("data-direction", "H");
                     div.className = divId + "-" + "H";
-                    img.setAttribute("src", "styles/img/HToV.png");
+                    btn.setAttribute("src", "styles/img/HToV.png");
                     break;
             }
         },
         dragStart: function (ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
-            setTimeout(() => (document.getElementById(ev.target.id).className = 'invisible'), 0);
+            this.shipDragged = ev.target;
+            setTimeout(() => (this.shipDragged.className = 'invisible'), 0);
         },
-        dragEnd: function (id) {
-            document.getElementById(id).className = document.getElementById(id).id + "-" + document.getElementById(id).getAttribute("data-direction");
+        dragEnter: function (ev) {
+            Array.from(document.getElementsByClassName("grid-item-drop-allowed")).map(cell => {
+                cell.className = "grid-item-drop"
+            });
+            Array.from(document.getElementsByClassName("grid-item-drop-denied")).map(cell => {
+                cell.className = "grid-item-drop"
+            });
+
+            var cell = ev.target;
+            var cellColumn = +cell.getAttribute("data-cellColumn");
+            var cellRow = +cell.getAttribute("data-cellRow");
+            var shipDirection = this.shipDragged.getAttribute("data-direction");
+            var shipLength = +this.shipDragged.getAttribute("data-length");
+            if (cellColumn != 0 && cellRow != 0) {
+                if (this.correctPlaced(cell)) {
+                    cell.setAttribute("data-drop","droppable");
+                    if (shipDirection == "H") {
+                        this.printCellsHoritzontal(cellRow, cellColumn, shipLength, "grid-item-drop-allowed");
+                    } else {
+                        this.printCellsVertical(cellRow, cellColumn, shipLength, "grid-item-drop-allowed");
+                    }
+                } else {
+                    cell.setAttribute("data-drop","undroppable");
+                    if (shipDirection == "H") {
+                        this.printCellsHoritzontal(cellRow, cellColumn, shipLength, "grid-item-drop-denied");
+                    } else {
+                        this.printCellsVertical(cellRow, cellColumn, shipLength, "grid-item-drop-denied");
+                    }
+                }
+            }
+        },
+        correctPlaced: function (cell) {
+            var shipDirection = this.shipDragged.getAttribute("data-direction");
+            var shipLength = +this.shipDragged.getAttribute("data-length");
+            if (shipDirection == "H") {
+                let cellColumn = +cell.getAttribute("data-cellColumn");
+                if (cellColumn + shipLength - 1 <= 10) {
+                    return true;
+                }
+                return false;
+            } else {
+                let cellRow = +cell.getAttribute("data-cellRow");
+                if (cellRow + shipLength - 1 <= 10) {
+                    return true;
+                }
+                return false;
+            }
+        },
+        printCellsVertical: function (cellRow, cellColumn, shipLength, className) {
+            var ini = cellRow;
+            var end = cellRow + shipLength - 1;
+            if (end > 10) {
+                end = 10;
+            }
+            for (let i = ini; i <= end; i++) {
+                document.querySelector("[data-cellPosition=" + this.rowNames[i] + cellColumn + "]").className = className;
+            }
+        },
+        printCellsHoritzontal: function (cellRow, cellColumn, shipLength, className) {
+            var ini = cellColumn;
+            var end = cellColumn + shipLength - 1;
+            if (end > 10) {
+                end = 10;
+            }
+            for (let i = ini; i <= end; i++) {
+                document.querySelector("[data-cellPosition=" + this.rowNames[cellRow] + i + "]").className = className;
+            }
         },
         allowDrop: function (ev) {
             ev.preventDefault();
         },
-        dragDrop: function(ev) {
+        dragLeave: function (ev) {
+            console.log("Leave");
+            console.log(ev.target.getAttribute("data-cellPosition"));
+        },
+        dragDrop: function (ev) {
             ev.preventDefault();
-            console.log(ev.target);
-            console.log(ev.target.getAttribute("data-drop"));
-            if (ev.target.getAttribute("data-drop") == "dropable") {
-                var data = ev.dataTransfer.getData("text");
-                document.getElementById(data).className = document.getElementById(data).id;
-                ev.target.appendChild(document.getElementById(data));
+            if (ev.target.getAttribute("data-drop") == "droppable") {
+                ev.target.appendChild(document.getElementById(this.shipDragged.id));
             }
-        }
+        },
+        dragEnd: function () {
+            this.shipDragged.className = this.shipDragged.id + "-" + this.shipDragged.getAttribute("data-direction");
+            this.shipDragged = null;
+            Array.from(document.getElementsByClassName("grid-item-drop-allowed")).map(cell => {
+                cell.className = "grid-item-drop"
+            });
+            Array.from(document.getElementsByClassName("grid-item-drop-denied")).map(cell => {
+                cell.className = "grid-item-drop"
+            });
+        },
     },
     created: function () {
         this.getURLParams();

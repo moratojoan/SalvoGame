@@ -62,6 +62,16 @@ h4 {
   line-height: 50px;
 }
 
+.grid-item-drop-allowed{
+    /*box*/
+    background-color: rgba(181, 255, 121, 0.8);
+}
+
+.grid-item-drop-denied{
+  /*box*/
+  background-color: rgba(255, 121, 121, 0.8);
+}
+
 .grid-item,
 .grid-item-GP-Ship {
   /* Flex*/
@@ -86,6 +96,7 @@ h4 {
 .grid-item-OP-Salvo {
   /*box*/
   border-radius: 50px;
+  background-color: rgb(194, 112, 18);
 }
 
 .grid-item-GP-Ship-Salvo {
@@ -93,9 +104,22 @@ h4 {
   height: 85%;
   width: 85%;
   border-radius: 50px;
+  background-color: rgb(186, 43, 32);
   /*text*/
   text-align: center;
   line-height: 38px;
+}
+
+.grid-item-GP-noShip-Salvo {
+  /*box*/
+  height: 80%;
+  width: 80%;
+  border-radius: 50px;
+  /* background-color: rgba(185, 56, 47, 0.363); */
+  border: 2px solid rgba(185, 56, 47, 0.363);
+  /*text*/
+  text-align: center;
+  line-height: 40px;
 }
 
 .grid-item-GP-Margin{
@@ -115,16 +139,6 @@ h4 {
 .grid-item-GP-Ship {
   /*box*/
   background-color: rgb(8, 53, 87);
-}
-
-.grid-item-GP-Ship-Salvo {
-  /*box*/
-  background-color: rgb(186, 43, 32);
-}
-
-.grid-item-OP-Salvo {
-  /*box*/
-  background-color: rgb(194, 112, 18);
 }
 
 .ship1-H {
