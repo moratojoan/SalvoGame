@@ -82,7 +82,7 @@
                             <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate" id="btn-rotate5" class="btn-rotate" v-on:click="flipShip('ship5','btn-rotate5')"></div>
                         </div>
                     </div>
-                    <button>Start Game!</button>
+                    <button v-on:click="postShipsToServer">Start Game!</button>
                 </div>
             </div>
         </div>

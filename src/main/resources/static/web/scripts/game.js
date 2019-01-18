@@ -196,25 +196,25 @@ var app = new Vue({
                 this.gamePlayersObj.oponent.email = "'WAITING FOR AN OPONENT!'";
             }
         },
-        postShipsToServer: function () {
-            var listOfShips = [{
-                    "type": "destroyer",
-                    "shipLocations": ["A1", "B1", "C1"]
-                },
-                {
-                    "type": "patrol boat",
-                    "shipLocations": ["H5", "H6"]
+        areAllShipsPlaced: function () {
+            var areAllShipsPlaced = true;
+            for(let i=0; i<this.listOfShips.length;i++){
+                if(this.listOfShips[i].shipLocations==0){
+                    areAllShipsPlaced = false;
                 }
-            ];
-
-            fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/ships", {
+            }
+            return areAllShipsPlaced;
+        },
+        postShipsToServer: function () {
+            if(this.areAllShipsPlaced()){
+                fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/ships", {
                     credentials: 'include',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     method: 'POST',
-                    body: JSON.stringify(listOfShips)
+                    body: JSON.stringify(this.listOfShips)
                 })
                 .then(function (response) {
                     return response.json();
@@ -223,11 +223,15 @@ var app = new Vue({
                         console.log(myData.error);
                     } else {
                         console.log(myData.ok);
+                        window.location.reload();
                     }
                 })
                 .catch(function (error) {
                     console.log('Request failure: ', error);
                 });
+            }else{
+                alert("You have to place all the ships!");
+            }
         },
         showImg: function (imgId) {
             document.getElementById(imgId).style.display = "block";
@@ -235,19 +239,65 @@ var app = new Vue({
         hideImg: function (imgId) {
             document.getElementById(imgId).style.display = "none";
         },
-        flipShip: function (divId, btnId) {
-            var div = document.getElementById(divId);
+        flipShip: function (shipId, btnId) {
+            var ship = document.getElementById(shipId);
             var btn = document.getElementById(btnId);
-            switch (div.getAttribute("data-direction")) {
+            var firstCell;
+            var shipIsInGrid = true;
+            for(let i=0; i<this.listOfShips.length; i++){
+                if(this.listOfShips[i].type == ship.getAttribute("data-shipType")){
+                    if(this.listOfShips[i].shipLocations.length != 0){
+                        firstCell = document.querySelector("[data-cellPosition="+ this.listOfShips[i].shipLocations[0]+"]");
+                    }else{
+                        shipIsInGrid = false;
+                    }
+                    
+                }
+            }
+            switch (ship.getAttribute("data-direction")) {
                 case "H":
-                    div.setAttribute("data-direction", "V");
-                    div.className = divId + "-" + "V";
+                    ship.setAttribute("data-direction", "V");
+                    ship.className = shipId + "-" + "V";
                     btn.setAttribute("src", "styles/img/VToH.png");
+                    if(shipIsInGrid){
+                        let newPositions = this.getShipLocations(ship, firstCell);
+                        if(!this.correctPlaced(firstCell,ship,newPositions)){
+                            ship.className += " red";
+                            setTimeout(()=>{
+                                ship.setAttribute("data-direction", "H");
+                                ship.className = shipId + "-" + "H";
+                                btn.setAttribute("src", "styles/img/HToV.png");
+                            },500);
+                        }else{
+                            for(let i=0; i<this.listOfShips.length; i++){
+                                if(this.listOfShips[i].type == ship.getAttribute("data-shipType")){
+                                    this.listOfShips[i].shipLocations = newPositions;
+                                }
+                            }
+                        }
+                    }
                     break;
                 case "V":
-                    div.setAttribute("data-direction", "H");
-                    div.className = divId + "-" + "H";
+                    ship.setAttribute("data-direction", "H");
+                    ship.className = shipId + "-" + "H";
                     btn.setAttribute("src", "styles/img/HToV.png");
+                    if(shipIsInGrid){
+                        let newPositions = this.getShipLocations(ship, firstCell);
+                        if(!this.correctPlaced(firstCell,ship,newPositions)){
+                            ship.className += " red";
+                            setTimeout(()=>{
+                                ship.setAttribute("data-direction", "V");
+                                ship.className = shipId + "-" + "V";
+                                btn.setAttribute("src", "styles/img/VToH.png");
+                            },500);
+                        }else{
+                            for(let i=0; i<this.listOfShips.length; i++){
+                                if(this.listOfShips[i].type == ship.getAttribute("data-shipType")){
+                                    this.listOfShips[i].shipLocations = newPositions;
+                                }
+                            }
+                        }
+                    }
                     break;
             }
         },
@@ -269,7 +319,7 @@ var app = new Vue({
             var shipDirection = this.shipDragged.getAttribute("data-direction");
             var shipLength = +this.shipDragged.getAttribute("data-length");
             if (cellColumn != 0 && cellRow != 0) {
-                if (this.correctPlaced(cell)) {
+                if (this.correctPlaced(cell, this.shipDragged, this.getShipLocations(this.shipDragged, cell))) {
                     cell.setAttribute("data-drop","droppable");
                     if (shipDirection == "H") {
                         this.printCellsHoritzontal(cellRow, cellColumn, shipLength, "grid-item-drop-allowed");
@@ -286,22 +336,32 @@ var app = new Vue({
                 }
             }
         },
-        correctPlaced: function (cell) {
-            var shipDirection = this.shipDragged.getAttribute("data-direction");
-            var shipLength = +this.shipDragged.getAttribute("data-length");
-            if (shipDirection == "H") {
-                let cellColumn = +cell.getAttribute("data-cellColumn");
-                if (cellColumn + shipLength - 1 <= 10) {
-                    return true;
+        correctPlaced: function (cell, ship, currentLocations) {
+            var shipDirection = ship.getAttribute("data-direction");
+            var shipLength = +ship.getAttribute("data-length");
+            if (!this.areShipsOverlap(ship.getAttribute("data-shipType"), currentLocations)){
+                if (shipDirection == "H") {
+                    let cellColumn = +cell.getAttribute("data-cellColumn");
+                    if (cellColumn + shipLength - 1 <= 10) {
+                        return true;
+                    }
+                } else {
+                    let cellRow = +cell.getAttribute("data-cellRow");
+                    if (cellRow + shipLength - 1 <= 10) {
+                        return true;
+                    }
                 }
-                return false;
-            } else {
-                let cellRow = +cell.getAttribute("data-cellRow");
-                if (cellRow + shipLength - 1 <= 10) {
-                    return true;
-                }
-                return false;
             }
+            return false;
+        },
+        areShipsOverlap: function (shipType, currentLocations) {
+            for(let i=0; i<currentLocations.length; i++){
+                for(let j=0; j<this.listOfShips.length;j++){
+                    if(shipType!=this.listOfShips[j].type && this.listOfShips[j].shipLocations.includes(currentLocations[i])){
+                        return true;
+                    }
+                }
+            }  
         },
         printCellsVertical: function (cellRow, cellColumn, shipLength, className) {
             var ini = cellRow;
@@ -327,14 +387,40 @@ var app = new Vue({
             ev.preventDefault();
         },
         dragLeave: function (ev) {
-            console.log("Leave");
-            console.log(ev.target.getAttribute("data-cellPosition"));
+            // console.log("Leave");
+            // console.log(ev.target.getAttribute("data-cellPosition"));
         },
         dragDrop: function (ev) {
             ev.preventDefault();
             if (ev.target.getAttribute("data-drop") == "droppable") {
                 ev.target.appendChild(document.getElementById(this.shipDragged.id));
+                for(let i=0; i<this.listOfShips.length; i++){
+                    if(this.listOfShips[i].type == this.shipDragged.getAttribute("data-shipType")){
+                        this.listOfShips[i].shipLocations = this.getShipLocations(this.shipDragged, ev.target);
+                    }
+                }
             }
+        },
+        getShipLocations: function (ship, firstCell) {
+            var shipDirection = ship.getAttribute("data-direction");
+            var shipLength = +ship.getAttribute("data-length");
+            var cellColumn = +firstCell.getAttribute("data-cellColumn");
+            var cellRow = +firstCell.getAttribute("data-cellRow");
+            var locations = [];
+            if(shipDirection == "H"){
+                let ini = cellColumn;
+                let end = cellColumn + shipLength - 1;
+                for (let i = ini; i <= end; i++) {
+                    locations.push(this.rowNames[cellRow] + i);
+                }
+            }else{
+                let ini = cellRow;
+                let end = cellRow + shipLength - 1;
+                for (let i = ini; i <= end; i++) {
+                    locations.push(this.rowNames[i] + cellColumn);
+                }
+            }
+            return locations;
         },
         dragEnd: function () {
             this.shipDragged.className = this.shipDragged.id + "-" + this.shipDragged.getAttribute("data-direction");
