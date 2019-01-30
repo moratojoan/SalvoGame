@@ -18,7 +18,6 @@ var app = new Vue({
         fetchJson: function (url, init) {
             return fetch(url, init).then(response => {
                 if (response.ok) {
-                    console.log(response);
                     return response.json();
                 }
                 throw new Error(response.statusText);
@@ -39,9 +38,8 @@ var app = new Vue({
         },
         //Method to convert milliseds to StringHour
         convertMillisecondsToDate: function (milliseconds) {
-            var date = new Date(milliseconds);
-            var dateString = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " - " + date.getHours() + ":" + date.getMinutes();
-            return dateString;
+            let date = new Date(milliseconds);
+            return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " - " + date.getHours() + ":" + date.getMinutes();
         },
         //Methods to login, logout and signup
         login: function () {
@@ -107,18 +105,20 @@ var app = new Vue({
         //Other Methods
         playerCanEnterThisGame: function (game) {
             if (this.currentPlayer != null) {
-                var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id)
-                return (filterGamePlayers.length == 1);
+                return (this.filterGamePlayers(game).length == 1);
             }
             return false;
         },
         enterGameButtonHref: function (game) {
             if (this.currentPlayer != null) {
-                var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id);
+                let filterGamePlayers = this.filterGamePlayers(game)
                 if (filterGamePlayers.length == 1) {
                     window.location.href = "game.html?gp=" + filterGamePlayers[0].id;
                 }
             }
+        },
+        filterGamePlayers: function(game){
+            return game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id);
         },
         createNewGame: function () {
             fetch("/api/games", {
@@ -144,8 +144,7 @@ var app = new Vue({
         playerCanJoinThisGame: function (game) {
             if (this.currentPlayer != null) {
                 if (game.gamePlayers.length < 2) {
-                    var filterGamePlayers = game.gamePlayers.filter(gameplayer => gameplayer.player.id == this.currentPlayer.id);
-                    return (filterGamePlayers.length == 0);
+                    return (this.filterGamePlayers(game).length == 0);
                 }
             }
             return false;
@@ -172,11 +171,11 @@ var app = new Vue({
         }
     },
     created: function () {
-        var urls = [this.urlApiGames, this.urlApiLeaderBoard];
-        var init = {
+        const URLS = [this.urlApiGames, this.urlApiLeaderBoard];
+        const INIT = {
             method: "GET"
         };
-        this.startFetchList(urls, init);
+        this.startFetchList(URLS, INIT);
     }
 });
 

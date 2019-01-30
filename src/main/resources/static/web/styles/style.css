@@ -212,21 +212,21 @@ h4 {
 }
 
 .grid-item-Ship1 {
-    background-color: rgb(10, 112, 18);
+    background-color: rgb(18, 163, 30);
     width: 50px;
     height: 50px;
     cursor: pointer;
     z-index: 50;
-    border: thin solid rgb(10, 112, 18);
+    border: thin solid rgb(18, 163, 30);
 }
 
 .grid-item-Ship2 {
-    background-color: rgb(194, 112, 18);
+    background-color: rgb(16, 90, 146);
     width: 50px;
     height: 50px;
     cursor: pointer;
     z-index: 50;
-    border: thin solid rgb(194, 112, 18);
+    border: thin solid rgb(16, 90, 146);
 }
 
 .invisible {
