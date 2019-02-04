@@ -222,59 +222,6 @@ var app = new Vue({
         hideImg: function (btnId) {
             document.getElementById(btnId).style.display = "none";
         },
-        // rotateShip: function (shipId, btnId) {
-        //     let ship = document.getElementById(shipId);
-        //     let btn = document.getElementById(btnId);
-        //     let firstCell;
-        //     for (let i = 0; i < this.listOfShips.length; i++) {
-        //         if (this.listOfShips[i].type == ship.getAttribute("data-shipType")) {
-        //             if (this.listOfShips[i].shipLocations.length != 0) {
-        //                 firstCell = document.querySelector("[data-cellPosition=" + this.listOfShips[i].shipLocations[0] + "]");
-        //             }
-        //         }
-        //     }
-        //     if (ship.getAttribute("data-direction") == "H") {
-        //         ship.setAttribute("data-direction", "V");
-        //         ship.className = shipId + "-" + "V";
-        //         btn.setAttribute("src", "styles/img/VToH.png");
-        //         if (firstCell != undefined) {
-        //             if (!this.correctPlaced(firstCell, ship)) {
-        //                 ship.className += " red";
-        //                 setTimeout(() => {
-        //                     ship.setAttribute("data-direction", "H");
-        //                     ship.className = shipId + "-" + "H";
-        //                     btn.setAttribute("src", "styles/img/HToV.png");
-        //                 }, 500);
-        //             } else {
-        //                 for (let i = 0; i < this.listOfShips.length; i++) {
-        //                     if (this.listOfShips[i].type == ship.getAttribute("data-shipType")) {
-        //                         this.listOfShips[i].shipLocations = this.getShipLocations(firstCell, ship);
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     } else {
-        //         ship.setAttribute("data-direction", "H");
-        //         ship.className = shipId + "-" + "H";
-        //         btn.setAttribute("src", "styles/img/HToV.png");
-        //         if (firstCell != undefined) {
-        //             if (!this.correctPlaced(firstCell, ship)) {
-        //                 ship.className += " red";
-        //                 setTimeout(() => {
-        //                     ship.setAttribute("data-direction", "V");
-        //                     ship.className = shipId + "-" + "V";
-        //                     btn.setAttribute("src", "styles/img/VToH.png");
-        //                 }, 500);
-        //             } else {
-        //                 for (let i = 0; i < this.listOfShips.length; i++) {
-        //                     if (this.listOfShips[i].type == ship.getAttribute("data-shipType")) {
-        //                         this.listOfShips[i].shipLocations = this.getShipLocations(firstCell, ship);
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // },
         rotateShip2: function (shipId, btnId) {
             let ship = document.getElementById(shipId);
             let btn = document.getElementById(btnId);
@@ -286,7 +233,6 @@ var app = new Vue({
                     }
                 }
             }
-
             const HvsV = {
                 H: "V",
                 V: "H"
@@ -322,7 +268,7 @@ var app = new Vue({
         },
         dragEnter: function (ev) {
             this.allGridItemsClassToDrop();
-
+            console.log("enter", ev.target.getAttribute("data-cellPosition"));
             let cell = ev.target;
             let shipDirection = this.shipDragged.getAttribute("data-direction");
 
@@ -344,7 +290,7 @@ var app = new Vue({
                 }
             }
         },
-        insideTheGrid: function (cell){
+        insideTheGrid: function (cell) {
             let cellColumn = +cell.getAttribute("data-cellColumn");
             let cellRow = +cell.getAttribute("data-cellRow");
             return (cellColumn != 0 && cellRow != 0);
@@ -406,7 +352,8 @@ var app = new Vue({
             ev.preventDefault();
         },
         dragLeave: function (ev) {
-            // console.log("Leave");
+            console.log("leave", ev.target.getAttribute("data-cellPosition"));
+            // this.allGridItemsClassToDrop();
         },
         dragDrop: function (ev) {
             ev.preventDefault();

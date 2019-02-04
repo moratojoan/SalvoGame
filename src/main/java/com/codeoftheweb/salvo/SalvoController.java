@@ -36,6 +36,9 @@ public class SalvoController {
     private ShipRepository shipRepository;
 
     @Autowired
+    private SalvoRepository salvoRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     //Request Methods
@@ -79,6 +82,11 @@ public class SalvoController {
     @RequestMapping(path = "/games/players/{nn}/ships", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> getResponseEntityOfPlaceShipsPOST(@PathVariable("nn") long gpId, @RequestBody List<Ship> ships, Authentication authentication){
         return makeResponseEntityOfPlaceShipsPost(gpId, ships, authentication);
+    }
+
+    @RequestMapping(path = "/games/players/{nn}/salvos", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> getResponseEntityOfSalvoPost(@PathVariable("nn") long gpId,@RequestBody Salvo salvo, Authentication authentication){
+        return makeResponseEntityOfSalvoPost(gpId, salvo, authentication);
     }
 
     //Support Methods
@@ -301,7 +309,6 @@ public class SalvoController {
                 Player currentPlayer = playerRepository.findByUserName(authentication.getName());
                 if(currentGamePlayer.getPlayer().getId().equals(currentPlayer.getId())){
                     if(currentGamePlayer.getShipSet().isEmpty()){
-                        System.out.println(currentGamePlayer.getShipSet());
                         for (Ship ship : ships) {
                             currentGamePlayer.addShip(ship);
                             shipRepository.save(ship);
@@ -314,6 +321,51 @@ public class SalvoController {
             }
             return new ResponseEntity<>(makeMap("error", "No game player with the given ID"), HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(makeMap("error", "Login to join game"), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(makeMap("error", "Login to place ships"), HttpStatus.UNAUTHORIZED);
     }
+
+    private ResponseEntity<Map<String, Object>> makeResponseEntityOfSalvoPost(long gpId, Salvo salvo, Authentication authentication) {
+        if(isUserLoggedIn(authentication)){
+            Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(gpId);
+            if(optionalGamePlayer.isPresent()){
+                GamePlayer currentGamePlayer = optionalGamePlayer.get();
+                Player currentPlayer = playerRepository.findByUserName(authentication.getName());
+                if(currentGamePlayer.getPlayer().getId().equals(currentPlayer.getId())){
+                    if(currentGamePlayer.getSalvoSet().size() < salvo.getTurn()){
+                        if(salvo.getSalvoLocations().size() <= 5){
+                            boolean incorrectSalvos = currentGamePlayer.getSalvoSet().stream().anyMatch(salvoOtherTurn -> salvosOverlap(salvoOtherTurn.getSalvoLocations(), salvo.getSalvoLocations()));
+                            if(!incorrectSalvos){
+                                salvo.setTurn(currentGamePlayer.getSalvoSet().size()+1);
+                                currentGamePlayer.addSalvo(salvo);
+                                salvoRepository.save(salvo);
+                                return new ResponseEntity<>(makeMap("ok", "Salvo added"), HttpStatus.CREATED);
+                            }
+                            return new ResponseEntity<>(makeMap("error", "Shots Overlapped"), HttpStatus.FORBIDDEN);
+                        }
+                        return new ResponseEntity<>(makeMap("error", "Maximum 5 shots in a Salvo"), HttpStatus.FORBIDDEN);
+                    }
+                    return new ResponseEntity<>(makeMap("error", "Salvos have already listed for this turn"), HttpStatus.FORBIDDEN);
+                }
+                return new ResponseEntity<>(makeMap("error", "The current user is not the game player the ID references"), HttpStatus.UNAUTHORIZED);
+            }
+            return new ResponseEntity<>(makeMap("error", "No game player with the given ID"), HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(makeMap("error", "Login to add salvos"), HttpStatus.UNAUTHORIZED);
+    }
+
+    private boolean salvosOverlap(List<String> salvoOtherTurnLocations, List<String> salvoLocations) {
+        for(String shot: salvoLocations){
+            if(salvoLocations.stream().anyMatch(shot::equals)){
+                return true;
+            }
+        }
+        for(String shot: salvoOtherTurnLocations){
+            if(salvoLocations.stream().anyMatch(shot::equals)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }
