@@ -13,17 +13,19 @@
 <body>
     <div id="app">
         <div v-if="!loading" class="content">
-            <form onsubmit="return false">
-                <button v-on:click="logout()">Log out</button>
-            </form>
-            <form onsubmit="return false">
-                <button v-on:click="goToHomePage()">Home Page</button>
-            </form>
             <h1>Ship Locations</h1>
+            <div class="group-buttons">
+                <form onsubmit="return false">
+                    <button v-on:click="logout()">Log out</button>
+                </form>
+                <form onsubmit="return false">
+                    <button v-on:click="goToHomePage()">Home Page</button>
+                </form>
+            </div>
+
             <div v-if="gameData.ships.length>0" class="gridsBox">
                 <div>
-                    <h3>Your Ships</h3>
-                    <h4>{{gamePlayersObj.gp.email}}</h4>
+                    <h3>Your Ships: {{gamePlayersObj.gp.email}}</h3>
                     <div class="grid-container grid-container-ships">
                         <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item">
                             <div v-if="isAMarginCell(i)" class="grid-item-GP-Margin">{{getCellNameShips(i)}}</div>
@@ -35,51 +37,73 @@
                     </div>
                 </div>
                 <div>
-                    <h3>Oponent</h3>
-                    <h4>{{gamePlayersObj.oponent.email}}</h4>
+                    <h3>Oponent: {{gamePlayersObj.oponent.email}}</h3>
                     <div class="grid-container grid-container-salvoes">
-                        <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item">
+                        <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item" v-on:mouseenter="salvoEnter(i)" v-on:mouseleave="salvoLeave(i)" v-on:click="salvoClick(i)">
                             <div v-if="isAMarginCell(i)" class="grid-item-OP-Margin">{{getCellNameSalvoes(i)}}</div>
                             <div v-else-if="thereIsASalvoGP(i)[0]" class="grid-item-OP-Salvo">{{getCellNameSalvoes(i)}}</div>
+                            <div v-else class="grid-item-OP-Salvo-Empty"></div>
                         </div>
                     </div>
+                </div>
+                <div>
+                    <h3>N. Shots</h3>
+                    <p>{{MAX_NUMBER_SHOTS-currentSalvo.salvoLocations.length}}</p>
+                    <button v-on:click="postSalvoToServer">Send Salvo</button>
                 </div>
             </div>
             <div v-else class="gridsBox">
                 <div class="grid-container-placeShips grid-container-ships">
-                    <div v-for="i in gridSize*gridSize" class="grid-item-drop" v-bind:data-cellPosition="getCellPosition(i)" v-bind:data-cellRow="getRow(i)" v-bind:data-cellColumn="getColumn(i)" v-on:dragenter="dragEnter" v-on:dragover="allowDrop" v-on:dragleave="dragLeave" v-on:drop="dragDrop">
+                    <div v-for="i in gridSize*gridSize" class="grid-item-drop" v-bind:data-cellPosition="getCellPosition(i)"
+                        v-bind:data-cellRow="getRow(i)" v-bind:data-cellColumn="getColumn(i)" v-on:dragenter="dragEnter"
+                        v-on:dragover="allowDrop" v-on:dragleave="dragLeave" v-on:drop="dragDrop">
                         <div v-if="isAMarginCell(i)" class="grid-item-GP-Margin">{{getCellNameShips(i)}}</div>
                     </div>
                 </div>
                 <div>
                     <h3>Place Ships!</h3>
                     <div>
-                        <div id="ship1" class="ship1-H" data-shipType="Aircraft Carrier" data-length="5" data-direction="H" v-on:mouseover="showImg('btn-rotate1')" v-on:mouseout="hideImg('btn-rotate1')" draggable="true" v-on:dragstart="dragStart" v-on:dragend="dragEnd">
+                        <div id="ship1" class="ship1-H" data-shipType="Aircraft Carrier" data-length="5" data-direction="H"
+                            v-on:mouseover="showImg('btn-rotate1')" v-on:mouseout="hideImg('btn-rotate1')" draggable="true"
+                            v-on:dragstart="dragStart" v-on:dragend="dragEnd">
                             <div class="grid-item-Ship1"></div>
-                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate" id="btn-rotate1" class="btn-rotate" v-on:click="rotateShip2('ship1','btn-rotate1')"></div>
+                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate"
+                                    id="btn-rotate1" class="btn-rotate" v-on:click="rotateShip('ship1','btn-rotate1')"></div>
                             <div class="grid-item-Ship2"></div>
                             <div class="grid-item-Ship2"></div>
                             <div class="grid-item-Ship2"></div>
                         </div>
-                        <div id="ship2" class="ship2-H" data-shipType="Battleship" data-length="4" data-direction="H" v-on:mouseover="showImg('btn-rotate2')" v-on:mouseout="hideImg('btn-rotate2')" draggable="true" v-on:dragstart="dragStart" v-on:dragend="dragEnd">
+                        <div id="ship2" class="ship2-H" data-shipType="Battleship" data-length="4" data-direction="H"
+                            v-on:mouseover="showImg('btn-rotate2')" v-on:mouseout="hideImg('btn-rotate2')" draggable="true"
+                            v-on:dragstart="dragStart" v-on:dragend="dragEnd">
                             <div class="grid-item-Ship1"></div>
-                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate" id="btn-rotate2" class="btn-rotate" v-on:click="rotateShip2('ship2','btn-rotate2')"></div>
+                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate"
+                                    id="btn-rotate2" class="btn-rotate" v-on:click="rotateShip('ship2','btn-rotate2')"></div>
                             <div class="grid-item-Ship2"></div>
                             <div class="grid-item-Ship2"></div>
                         </div>
-                        <div id="ship3" class="ship3-H" data-shipType="Submarine" data-length="3" data-direction="H" v-on:mouseover="showImg('btn-rotate3')" v-on:mouseout="hideImg('btn-rotate3')" draggable="true" v-on:dragstart="dragStart" v-on:dragend="dragEnd">
+                        <div id="ship3" class="ship3-H" data-shipType="Submarine" data-length="3" data-direction="H"
+                            v-on:mouseover="showImg('btn-rotate3')" v-on:mouseout="hideImg('btn-rotate3')" draggable="true"
+                            v-on:dragstart="dragStart" v-on:dragend="dragEnd">
                             <div class="grid-item-Ship1"></div>
-                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate" id="btn-rotate3" class="btn-rotate" v-on:click="rotateShip2('ship3','btn-rotate3')"></div>
+                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate"
+                                    id="btn-rotate3" class="btn-rotate" v-on:click="rotateShip('ship3','btn-rotate3')"></div>
                             <div class="grid-item-Ship2"></div>
                         </div>
-                        <div id="ship4" class="ship4-H" data-shipType="Destroyer" data-length="3" data-direction="H" v-on:mouseover="showImg('btn-rotate4')" v-on:mouseout="hideImg('btn-rotate4')" draggable="true" v-on:dragstart="dragStart" v-on:dragend="dragEnd">
+                        <div id="ship4" class="ship4-H" data-shipType="Destroyer" data-length="3" data-direction="H"
+                            v-on:mouseover="showImg('btn-rotate4')" v-on:mouseout="hideImg('btn-rotate4')" draggable="true"
+                            v-on:dragstart="dragStart" v-on:dragend="dragEnd">
                             <div class="grid-item-Ship1"></div>
-                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate" id="btn-rotate4" class="btn-rotate" v-on:click="rotateShip2('ship4','btn-rotate4')"></div>
+                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate"
+                                    id="btn-rotate4" class="btn-rotate" v-on:click="rotateShip('ship4','btn-rotate4')"></div>
                             <div class="grid-item-Ship2"></div>
                         </div>
-                        <div id="ship5" class="ship5-H" data-shipType="Patrol Boat" data-length="2" data-direction="H" v-on:mouseover="showImg('btn-rotate5')" v-on:mouseout="hideImg('btn-rotate5')" draggable="true" v-on:dragstart="dragStart" v-on:dragend="dragEnd">
+                        <div id="ship5" class="ship5-H" data-shipType="Patrol Boat" data-length="2" data-direction="H"
+                            v-on:mouseover="showImg('btn-rotate5')" v-on:mouseout="hideImg('btn-rotate5')" draggable="true"
+                            v-on:dragstart="dragStart" v-on:dragend="dragEnd">
                             <div class="grid-item-Ship1"></div>
-                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate" id="btn-rotate5" class="btn-rotate" v-on:click="rotateShip2('ship5','btn-rotate5')"></div>
+                            <div class="grid-item-Ship2"><img draggable="false" src="styles/img/HToV.png" alt="rotate"
+                                    id="btn-rotate5" class="btn-rotate" v-on:click="rotateShip('ship5','btn-rotate5')"></div>
                         </div>
                     </div>
                     <button v-on:click="postShipsToServer">Start Game!</button>

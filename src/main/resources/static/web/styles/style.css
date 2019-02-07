@@ -1,13 +1,17 @@
 .content {
   /*box*/
-  width: 1200px;
+  width: 1300px;
   margin: auto;
 }
 
+.group-buttons {
+  display: flex;
+}
+
 h1,
-h3,
-h4 {
+h3 {
   text-align: center;
+  margin: 0;
 }
 
 .gridsBox {
@@ -87,7 +91,8 @@ h4 {
 }
 
 .grid-item-GP-Ship,
-.grid-item-OP-Salvo {
+.grid-item-OP-Salvo,
+.grid-item-OP-Salvo-Empty {
   /*box*/
   height: 95%;
   width: 95%;
@@ -97,6 +102,19 @@ h4 {
   /*box*/
   border-radius: 50px;
   background-color: rgb(194, 112, 18);
+}
+
+.grid-item-OP-Salvo-Empty{
+    /*box*/
+    border-radius: 50px;
+}
+
+.grid-item-OP-Salvo-Aim{
+    /*box*/
+    height: 70%;
+    width: 70%;
+    border-radius: 50px;
+    background-color: rgb(194, 112, 18);
 }
 
 .grid-item-GP-Ship-Salvo {

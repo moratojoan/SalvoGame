@@ -38,7 +38,12 @@ var app = new Vue({
                 type: "Patrol Boat",
                 shipLocations: []
             }
-        ]
+        ],
+        MAX_NUMBER_SHOTS: 5,
+        currentSalvo: {
+            turn: null,
+            salvoLocations: []
+        }
     },
     methods: {
         getURLParams: function () {
@@ -56,10 +61,14 @@ var app = new Vue({
                         alert(myData.error);
                         history.back();
                     } else {
-                        this.gameData = myData;
-                        console.log(myData);
-                        this.fillGamePlayersObj();
-                        this.loading = false;
+                        if (myData.gamePlayers) {
+                            this.gameData = myData;
+                            console.log(myData);
+                            this.fillGamePlayersObj();
+                            this.loading = false;
+                        } else {
+                            this.gameData.salvoes = myData;
+                        }
                     }
                 })
                 .catch(error => {
@@ -222,7 +231,7 @@ var app = new Vue({
         hideImg: function (btnId) {
             document.getElementById(btnId).style.display = "none";
         },
-        rotateShip2: function (shipId, btnId) {
+        rotateShip: function (shipId, btnId) {
             let ship = document.getElementById(shipId);
             let btn = document.getElementById(btnId);
             let firstCell;
@@ -270,23 +279,14 @@ var app = new Vue({
             this.allGridItemsClassToDrop();
             console.log("enter", ev.target.getAttribute("data-cellPosition"));
             let cell = ev.target;
-            let shipDirection = this.shipDragged.getAttribute("data-direction");
 
             if (this.insideTheGrid(cell)) {
                 if (this.correctPlaced(cell, this.shipDragged)) {
                     cell.setAttribute("data-drop", "droppable");
-                    if (shipDirection == "H") {
-                        this.printCellsHoritzontal(cell, this.shipDragged, "grid-item-drop-allowed");
-                    } else {
-                        this.printCellsVertical(cell, this.shipDragged, "grid-item-drop-allowed");
-                    }
+                    this.printCellsHovered(cell, this.shipDragged);
                 } else {
                     cell.setAttribute("data-drop", "undroppable");
-                    if (shipDirection == "H") {
-                        this.printCellsHoritzontal(cell, this.shipDragged, "grid-item-drop-denied");
-                    } else {
-                        this.printCellsVertical(cell, this.shipDragged, "grid-item-drop-denied");
-                    }
+                    this.printCellsHovered(cell, this.shipDragged);
                 }
             }
         },
@@ -296,10 +296,10 @@ var app = new Vue({
             return (cellColumn != 0 && cellRow != 0);
         },
         correctPlaced: function (cell, ship) {
-            let shipDirection = ship.getAttribute("data-direction");
-            let shipLength = +ship.getAttribute("data-length");
             let cellColumn = +cell.getAttribute("data-cellColumn");
             let cellRow = +cell.getAttribute("data-cellRow");
+            let shipDirection = ship.getAttribute("data-direction");
+            let shipLength = +ship.getAttribute("data-length");
 
             if (!this.areShipsOverlap(cell, ship)) {
                 if (shipDirection == "H") {
@@ -322,30 +322,32 @@ var app = new Vue({
                 }
             }
         },
-        printCellsVertical: function (cell, ship, className) {
+        printCellsHovered: function (cell, ship) {
             let cellColumn = +cell.getAttribute("data-cellColumn");
             let cellRow = +cell.getAttribute("data-cellRow");
             let shipLength = +ship.getAttribute("data-length");
+            let shipDirection = ship.getAttribute("data-direction");
+            let className = "grid-item-drop-denied";
+            if (cell.getAttribute("data-drop")=="droppable"){
+                className = "grid-item-drop-allowed";
+            }
 
-            let end = cellRow + shipLength - 1;
-            if (end > 10) {
-                end = 10;
-            }
-            for (let i = cellRow; i <= end; i++) {
-                document.querySelector("[data-cellPosition=" + this.rowNames[i] + cellColumn + "]").className = className;
-            }
-        },
-        printCellsHoritzontal: function (cell, ship, className) {
-            let cellColumn = +cell.getAttribute("data-cellColumn");
-            let cellRow = +cell.getAttribute("data-cellRow");
-            let shipLength = +ship.getAttribute("data-length");
-
-            let end = cellColumn + shipLength - 1;
-            if (end > 10) {
-                end = 10;
-            }
-            for (let i = cellColumn; i <= end; i++) {
-                document.querySelector("[data-cellPosition=" + this.rowNames[cellRow] + i + "]").className = className;
+            if (shipDirection == "H") {
+                let end = cellColumn + shipLength - 1;
+                if (end > 10) {
+                    end = 10;
+                }
+                for (let i = cellColumn; i <= end; i++) {
+                    document.querySelector("[data-cellPosition=" + this.rowNames[cellRow] + i + "]").className = className;
+                }
+            } else if (shipDirection == "V") {
+                let end = cellRow + shipLength - 1;
+                if (end > 10) {
+                    end = 10;
+                }
+                for (let i = cellRow; i <= end; i++) {
+                    document.querySelector("[data-cellPosition=" + this.rowNames[i] + cellColumn + "]").className = className;
+                }
             }
         },
         allowDrop: function (ev) {
@@ -353,7 +355,6 @@ var app = new Vue({
         },
         dragLeave: function (ev) {
             console.log("leave", ev.target.getAttribute("data-cellPosition"));
-            // this.allGridItemsClassToDrop();
         },
         dragDrop: function (ev) {
             ev.preventDefault();
@@ -400,6 +401,82 @@ var app = new Vue({
             Array.from(document.getElementsByClassName("grid-item-drop-denied")).map(cell => {
                 cell.className = "grid-item-drop"
             });
+        },
+        postSalvoToServer: function () {
+            let salvo = this.currentSalvo;
+            fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes", {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(salvo)
+                })
+                .then(response => response.json())
+                .then(myData => {
+                    if (myData.error) {
+                        console.log(myData.error);
+                        alert(myData.error);
+                        this.deleteCurrentSalvo();
+                    } else {
+                        console.log(myData.ok);
+                        this.startFetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes");
+                    }
+                })
+                .catch(function (error) {
+                    console.log('Request failure: ', error);
+                });
+        },
+        salvoEnter: function (i) {
+            if (!this.isAMarginCell(i) && this.allowAnotherShot()) {
+                let cell = this.getCellByNumber(i);
+                if (cell.children[0].className == "grid-item-OP-Salvo-Empty") {
+                    cell.children[0].className = "grid-item-OP-Salvo-Aim";
+                }
+            }
+        },
+        salvoLeave: function (i) {
+            if (!this.isAMarginCell(i) && this.allowAnotherShot()) {
+                let cell = this.getCellByNumber(i);
+                if (cell.children[0].className == "grid-item-OP-Salvo-Aim") {
+                    cell.children[0].className = "grid-item-OP-Salvo-Empty";
+                }
+            }
+        },
+        salvoClick: function (i) {
+            if (!this.isAMarginCell(i)) {
+                let cell = this.getCellByNumber(i);
+                if (cell.textContent == "") {
+                    if (cell.children[0].className == "grid-item-OP-Salvo-Aim") {
+                        if (this.allowAnotherShot()) {
+                            cell.children[0].className = "grid-item-OP-Salvo";
+                            this.currentSalvo.salvoLocations.push(this.getCellPosition(i));
+                        }
+                    } else if (cell.children[0].className == "grid-item-OP-Salvo") {
+                        cell.children[0].className = "grid-item-OP-Salvo-Aim";
+                        let index = this.currentSalvo.salvoLocations.indexOf(this.getCellPosition(i));
+                        this.currentSalvo.salvoLocations.splice(index, 1);
+                    }
+                }
+            }
+        },
+        getCellByNumber: function (i) {
+            return document.querySelector("div.grid-container-salvoes div[data-cellPosition=" + this.getCellPosition(i) + "]");
+        },
+        getCellByPos: function (pos) {
+            return document.querySelector("div.grid-container-salvoes div[data-cellPosition=" + pos + "]");
+        },
+        allowAnotherShot: function () {
+            return (this.currentSalvo.salvoLocations.length < this.MAX_NUMBER_SHOTS);
+        },
+        deleteCurrentSalvo: function () {
+            this.currentSalvo.salvoLocations.forEach(this.deleteCurrentShots);
+            this.currentSalvo.salvoLocations = [];
+        },
+        deleteCurrentShots: function (pos) {
+            let cell = this.getCellByPos(pos);
+            cell.children[0].className = "grid-item-OP-Salvo-Empty";
         }
     },
     created: function () {
