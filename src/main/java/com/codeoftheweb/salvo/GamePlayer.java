@@ -6,7 +6,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 @Entity
 public class GamePlayer {
@@ -93,5 +96,14 @@ public class GamePlayer {
 
     public Score getScore(){
         return this.getPlayer().getScore(this.getGame());
+    }
+
+    public GamePlayer getOpponent(){
+        List<GamePlayer> gamePlayerList = this.getGame().getGamePlayerSet().stream().filter(gamePlayer -> !gamePlayer.getId().equals(this.getId())).collect(toList());
+        if(gamePlayerList.size()>0){
+            return gamePlayerList.get(0);
+        }else{
+            return null;
+        }
     }
 }

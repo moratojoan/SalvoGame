@@ -67,7 +67,8 @@ var app = new Vue({
                             this.fillGamePlayersObj();
                             this.loading = false;
                         } else {
-                            this.gameData.salvoes = myData;
+                            this.gameData.salvoes = myData.salvoes;
+                            this.gameData.hits = myData.hits;
                         }
                     }
                 })
@@ -215,7 +216,8 @@ var app = new Vue({
                             console.log(myData.error);
                         } else {
                             console.log(myData.ok);
-                            window.location.reload();
+                            // window.location.reload();
+                            this.startFetch(this.urlApiGameViewGPID + this.gamePlayersObj.gp.id);
                         }
                     })
                     .catch(function (error) {

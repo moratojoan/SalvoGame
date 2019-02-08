@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -86,7 +87,7 @@ public class SalvoController {
 
     @RequestMapping("/games/players/{nn}/salvoes")
     public ResponseEntity<Map<String, Object>> getResponseEntityOfSalvo(@PathVariable("nn") long gpId, Authentication authentication){
-        return makeResponseEntityOfSalvoDTO(gpId, authentication);
+        return makeResponseEntityOfSalvoAndHitsDTO(gpId, authentication);
     }
 
     @RequestMapping(path = "/games/players/{nn}/salvoes", method = RequestMethod.POST)
@@ -152,6 +153,7 @@ public class SalvoController {
         if(dto != null){
             dto.put("ships", makeListOfShipsDTO(optionalGamePlayer.get().getShipSet()));
             dto.put("salvoes", makeMapOfSalvoDTO(optionalGamePlayer.get().getGame().getGamePlayerSet()));
+            dto.put("hits", makeMapOfSalvoHitsDTO(optionalGamePlayer.get().getGame().getGamePlayerSet()));
         }
         return dto;
     }
@@ -214,6 +216,44 @@ public class SalvoController {
             dto.put(salvo.getTurn().toString(),salvo.getSalvoLocations());
         }
         return dto;
+    }
+
+    private Map<String, Object> makeMapOfSalvoHitsDTO(Set<GamePlayer> gamePlayerSet) {
+        List<GamePlayer> gamePlayerList = new ArrayList<>(gamePlayerSet);
+        Map<String,Object> dto = new LinkedHashMap<>();
+        for (GamePlayer gamePlayer : gamePlayerList) {
+            dto.put(gamePlayer.getId().toString(), makeMapOfSalvoHitsByGamePlayerDTO(gamePlayer));
+        }
+        return dto;
+    }
+
+    private Map<String, Object> makeMapOfSalvoHitsByGamePlayerDTO(GamePlayer gamePlayer) {
+        Map<String,Object> dto = new LinkedHashMap<>();
+        if(gamePlayer.getOpponent()!=null){
+            Set<Ship> opponentGamePlayerShips = gamePlayer.getOpponent().getShipSet();
+            Set<Salvo> currentGamePlayerSalvoes = gamePlayer.getSalvoSet();
+            for(Ship ship : opponentGamePlayerShips){
+                dto.put(ship.getType(), makeMapOfHitsInShip(ship.getShipLocations(), currentGamePlayerSalvoes));
+            }
+        }
+        return dto;
+    }
+
+    private Map<String, Object> makeMapOfHitsInShip(List<String> shipLocations, Set<Salvo> currentGamePlayerSalvoes) {
+        Map<String,Object> dto = new LinkedHashMap<>();
+
+        List<String> listOfHitsLocations = shipLocations.stream().filter(shipLocation -> thisLocationIsHit(shipLocation, currentGamePlayerSalvoes)).collect(toList());
+
+        boolean isSunk = (listOfHitsLocations.size() == shipLocations.size());
+
+        dto.put("isSunk", isSunk);
+        dto.put("locations", listOfHitsLocations);
+
+        return dto;
+    }
+
+    private boolean thisLocationIsHit(String shipLocation, Set<Salvo> currentGamePlayerSalvoes) {
+        return currentGamePlayerSalvoes.stream().flatMap(salvo -> salvo.getSalvoLocations().stream()).collect(toList()).contains(shipLocation);
     }
 
     private List<Map<String,Object>> makeListOfLeaderboardDTO(List<Player> playerList){
@@ -382,20 +422,27 @@ public class SalvoController {
         return false;
     }
 
-    private ResponseEntity<Map<String, Object>> makeResponseEntityOfSalvoDTO(long gpId, Authentication authentication) {
+    private ResponseEntity<Map<String, Object>> makeResponseEntityOfSalvoAndHitsDTO(long gpId, Authentication authentication) {
         if(isUserLoggedIn(authentication)){
             Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(gpId);
             if(optionalGamePlayer.isPresent()){
                 GamePlayer currentGamePlayer = optionalGamePlayer.get();
                 Player currentPlayer = playerRepository.findByUserName(authentication.getName());
                 if(currentGamePlayer.getPlayer().getId().equals(currentPlayer.getId())){
-                    return new ResponseEntity<>(makeMapOfSalvoDTO(currentGamePlayer.getGame().getGamePlayerSet()), HttpStatus.OK);
+                    return new ResponseEntity<>(makeMapOfSalvoAndHitsDTO(currentGamePlayer.getGame().getGamePlayerSet()), HttpStatus.OK);
                 }
                 return new ResponseEntity<>(makeMap("error", "The current user is not the game player the ID references"), HttpStatus.UNAUTHORIZED);
             }
             return new ResponseEntity<>(makeMap("error", "No game player with the given ID"), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(makeMap("error", "Login to get salvoes"), HttpStatus.UNAUTHORIZED);
+    }
+
+    private Map<String, Object> makeMapOfSalvoAndHitsDTO(Set<GamePlayer> gamePlayerSet){
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("salvoes", makeMapOfSalvoDTO(gamePlayerSet));
+        dto.put("hits", makeMapOfSalvoHitsDTO(gamePlayerSet));
+        return dto;
     }
 
 
