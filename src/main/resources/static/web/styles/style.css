@@ -92,21 +92,39 @@ h3 {
 
 .grid-item-GP-Ship,
 .grid-item-OP-Salvo,
+.grid-item-OP-Salvo-Hit,
+.grid-item-OP-Salvo-noHit,
+.grid-item-OP-Salvo-Sunk,
 .grid-item-OP-Salvo-Empty {
   /*box*/
   height: 95%;
   width: 95%;
 }
 
-.grid-item-OP-Salvo {
-  /*box*/
-  border-radius: 50px;
-  background-color: rgb(194, 112, 18);
-}
-
+.grid-item-OP-Salvo,
+.grid-item-OP-Salvo-Hit,
+.grid-item-OP-Salvo-noHit,
+.grid-item-OP-Salvo-Sunk,
 .grid-item-OP-Salvo-Empty{
     /*box*/
     border-radius: 50px;
+}
+
+.grid-item-OP-Salvo {
+  /*box*/
+  background-color: rgb(194, 112, 18);
+}
+
+.grid-item-OP-Salvo-noHit{
+  border: 2px solid rgba(185, 56, 47, 0.363);
+}
+
+.grid-item-OP-Salvo-Hit{
+  background-color: rgb(255, 98, 25);
+}
+
+.grid-item-OP-Salvo-Sunk{
+  background-color: rgba(255, 52, 25);
 }
 
 .grid-item-OP-Salvo-Aim{

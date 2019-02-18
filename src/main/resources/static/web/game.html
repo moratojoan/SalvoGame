@@ -41,7 +41,7 @@
                     <div class="grid-container grid-container-salvoes">
                         <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item" v-on:mouseenter="salvoEnter(i)" v-on:mouseleave="salvoLeave(i)" v-on:click="salvoClick(i)">
                             <div v-if="isAMarginCell(i)" class="grid-item-OP-Margin">{{getCellNameSalvoes(i)}}</div>
-                            <div v-else-if="thereIsASalvoGP(i)[0]" class="grid-item-OP-Salvo">{{getCellNameSalvoes(i)}}</div>
+                            <div v-else-if="thereIsASalvoGP(i)[0]" v-bind:class="getSalvoClasstoOPGrid(i)">{{getCellNameSalvoes(i)}}</div>
                             <div v-else class="grid-item-OP-Salvo-Empty"></div>
                         </div>
                     </div>

@@ -69,6 +69,7 @@ var app = new Vue({
                         } else {
                             this.gameData.salvoes = myData.salvoes;
                             this.gameData.hits = myData.hits;
+                            this.currentSalvo.salvoLocations = [];
                         }
                     }
                 })
@@ -148,6 +149,30 @@ var app = new Vue({
             }
             return [false];
         },
+        getSalvoClasstoOPGrid: function(i){
+            let cellPosition = this.getCellPosition(i);
+            if(this.mySalvoHitAOPShip(cellPosition)){
+                if(this.mySalvoSunkAShip(cellPosition)){
+                    return "grid-item-OP-Salvo-Sunk";
+                }
+                return "grid-item-OP-Salvo-Hit";
+            }
+            return "grid-item-OP-Salvo-noHit";
+        },
+        mySalvoHitAOPShip(cellPosition){
+            for(key in this.gameData.hits[this.gamePlayersObj.gp.id]){
+                if(this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)){
+                    return true;
+                }
+            }
+        },
+        mySalvoSunkAShip(cellPosition){
+            for(key in this.gameData.hits[this.gamePlayersObj.oponent.id]){
+                if(this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)){
+                    return this.gameData.hits[this.gamePlayersObj.gp.id][key].isSunk;
+                }
+            }
+        },
         getCellNameShips: function (i) {
             let cellPosition = this.getCellPosition(i);
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
@@ -216,8 +241,8 @@ var app = new Vue({
                             console.log(myData.error);
                         } else {
                             console.log(myData.ok);
-                            // window.location.reload();
-                            this.startFetch(this.urlApiGameViewGPID + this.gamePlayersObj.gp.id);
+                            window.location.reload();
+                            // this.startFetch(this.urlApiGameViewGPID + this.gamePlayersObj.gp.id);
                         }
                     })
                     .catch(function (error) {
@@ -423,7 +448,8 @@ var app = new Vue({
                         this.deleteCurrentSalvo();
                     } else {
                         console.log(myData.ok);
-                        this.startFetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes");
+                        // this.startFetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes");
+                        window.location.reload();
                     }
                 })
                 .catch(function (error) {
