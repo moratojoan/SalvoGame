@@ -11,7 +11,7 @@
 
 <body>
     <div id="app">
-        <div v-if="!loading" class="content">
+        <div v-if="!loading" class="page-container">
             <h1>Salvo</h1>
             <h2 v-if="currentPlayer!=null">{{currentPlayer.email}}</h2>
             <form v-if="currentPlayer==null" onsubmit="return false">

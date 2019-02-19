@@ -1,10 +1,17 @@
 var app = new Vue({
     el: "#app",
     data: {
+        //Grid Construction
         gridSize: 11,
         rowNames: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         columnNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+        //Wait for the first fetch
+        loading: true,
+        //Urls
+        urlGamesPage: "games.html",
         urlApiGameViewGPID: "/api/game_view/",
+        //Data
+        gameData: null,
         gamePlayersObj: {
             gp: {
                 id: null,
@@ -15,8 +22,6 @@ var app = new Vue({
                 email: null
             }
         },
-        gameData: null,
-        loading: true,
         shipDragged: null,
         listOfShips: [{
                 type: "Aircraft Carrier",
@@ -46,10 +51,12 @@ var app = new Vue({
         }
     },
     methods: {
-        getURLParams: function () {
+        getCurrentGamePlayerId: function () {
             let parsedUrl = new URL(window.location.href);
-            this.gamePlayersObj.gp.id = parsedUrl.searchParams.get("gp") * 1;
+            return parsedUrl.searchParams.get("gp") * 1;
         },
+
+        //Fetch
         startFetch: function (url) {
             fetch(url, {
                     method: "GET"
@@ -61,16 +68,10 @@ var app = new Vue({
                         alert(myData.error);
                         history.back();
                     } else {
-                        if (myData.gamePlayers) {
-                            this.gameData = myData;
-                            console.log(myData);
-                            this.fillGamePlayersObj();
-                            this.loading = false;
-                        } else {
-                            this.gameData.salvoes = myData.salvoes;
-                            this.gameData.hits = myData.hits;
-                            this.currentSalvo.salvoLocations = [];
-                        }
+                        this.gameData = myData;
+                        console.log(myData);
+                        this.fillGamePlayersObj();
+                        this.loading = false;
                     }
                 })
                 .catch(error => {
@@ -96,8 +97,64 @@ var app = new Vue({
                 });
         },
         goToHomePage: function () {
-            window.location.href = "games.html";
+            window.location.href = this.urlGamesPage;
         },
+        postShipsToServer: function () {
+            if (this.areAllShipsPlaced()) {
+                fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/ships", {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'POST',
+                        body: JSON.stringify(this.listOfShips)
+                    })
+                    .then(function (response) {
+                        return response.json();
+                    }).then(function (myData) {
+                        if (myData.error) {
+                            console.log(myData.error);
+                        } else {
+                            console.log(myData.ok);
+                            window.location.reload();
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log('Request failure: ', error);
+                    });
+            } else {
+                alert("You have to place all the ships!");
+            }
+        },
+        postSalvoToServer: function () {
+            let salvo = this.currentSalvo;
+            fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes", {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(salvo)
+                })
+                .then(response => response.json())
+                .then(myData => {
+                    if (myData.error) {
+                        console.log(myData.error);
+                        alert(myData.error);
+                        this.deleteCurrentSalvo();
+                    } else {
+                        console.log(myData.ok);
+                        window.location.reload();
+                    }
+                })
+                .catch(function (error) {
+                    console.log('Request failure: ', error);
+                });
+        },
+
+        //Grid
         getRow: function (i) {
             //The v-for starts with i=1. I want that starts with i=0.
             i--;
@@ -121,6 +178,27 @@ var app = new Vue({
             let cellPosition = this.getCellPosition(i);
             return (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition) || i == 1);
         },
+
+        //GamePlayer Object: Current and Opponent
+        fillGamePlayersObj: function () {
+            let gamePlayers = this.gameData.gamePlayers;
+            if (gamePlayers.length == 2) {
+                if (gamePlayers[0].id == this.gamePlayersObj.gp.id) {
+                    this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
+                    this.gamePlayersObj.oponent.id = gamePlayers[1].id;
+                    this.gamePlayersObj.oponent.email = gamePlayers[1].player.email;
+                } else {
+                    this.gamePlayersObj.gp.email = gamePlayers[1].player.email;
+                    this.gamePlayersObj.oponent.id = gamePlayers[0].id;
+                    this.gamePlayersObj.oponent.email = gamePlayers[0].player.email;
+                }
+            } else {
+                this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
+                this.gamePlayersObj.oponent.email = "'WAITING FOR AN OPONENT!'";
+            }
+        },
+
+        //Detect Ships and Salvoes
         thereIsAShip: function (i) {
             for (let j = 0; j < this.gameData.ships.length; j++) {
                 if (this.gameData.ships[j].locations.includes(this.getCellPosition(i))) {
@@ -149,26 +227,26 @@ var app = new Vue({
             }
             return [false];
         },
-        getSalvoClasstoOPGrid: function(i){
+        getSalvoClasstoOPGrid: function (i) {
             let cellPosition = this.getCellPosition(i);
-            if(this.mySalvoHitAOPShip(cellPosition)){
-                if(this.mySalvoSunkAShip(cellPosition)){
+            if (this.mySalvoHitAOPShip(cellPosition)) {
+                if (this.mySalvoSunkAShip(cellPosition)) {
                     return "grid-item-OP-Salvo-Sunk";
                 }
                 return "grid-item-OP-Salvo-Hit";
             }
             return "grid-item-OP-Salvo-noHit";
         },
-        mySalvoHitAOPShip(cellPosition){
-            for(key in this.gameData.hits[this.gamePlayersObj.gp.id]){
-                if(this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)){
+        mySalvoHitAOPShip(cellPosition) {
+            for (key in this.gameData.hits[this.gamePlayersObj.gp.id]) {
+                if (this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)) {
                     return true;
                 }
             }
         },
-        mySalvoSunkAShip(cellPosition){
-            for(key in this.gameData.hits[this.gamePlayersObj.oponent.id]){
-                if(this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)){
+        mySalvoSunkAShip(cellPosition) {
+            for (key in this.gameData.hits[this.gamePlayersObj.gp.id]) {
+                if (this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)) {
                     return this.gameData.hits[this.gamePlayersObj.gp.id][key].isSunk;
                 }
             }
@@ -197,23 +275,8 @@ var app = new Vue({
             }
             return null;
         },
-        fillGamePlayersObj: function () {
-            let gamePlayers = this.gameData.gamePlayers;
-            if (gamePlayers.length == 2) {
-                if (gamePlayers[0].id == this.gamePlayersObj.gp.id) {
-                    this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
-                    this.gamePlayersObj.oponent.id = gamePlayers[1].id;
-                    this.gamePlayersObj.oponent.email = gamePlayers[1].player.email;
-                } else {
-                    this.gamePlayersObj.gp.email = gamePlayers[1].player.email;
-                    this.gamePlayersObj.oponent.id = gamePlayers[0].id;
-                    this.gamePlayersObj.oponent.email = gamePlayers[0].player.email;
-                }
-            } else {
-                this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
-                this.gamePlayersObj.oponent.email = "'WAITING FOR AN OPONENT!'";
-            }
-        },
+
+        //Place Ships
         areAllShipsPlaced: function () {
             let areAllShipsPlaced = true;
             for (let i = 0; i < this.listOfShips.length; i++) {
@@ -223,40 +286,11 @@ var app = new Vue({
             }
             return areAllShipsPlaced;
         },
-        postShipsToServer: function () {
-            if (this.areAllShipsPlaced()) {
-                fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/ships", {
-                        credentials: 'include',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        method: 'POST',
-                        body: JSON.stringify(this.listOfShips)
-                    })
-                    .then(function (response) {
-                        return response.json();
-                    }).then(function (myData) {
-                        if (myData.error) {
-                            console.log(myData.error);
-                        } else {
-                            console.log(myData.ok);
-                            window.location.reload();
-                            // this.startFetch(this.urlApiGameViewGPID + this.gamePlayersObj.gp.id);
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log('Request failure: ', error);
-                    });
-            } else {
-                alert("You have to place all the ships!");
-            }
-        },
         showImg: function (btnId) {
-            document.getElementById(btnId).style.display = "block";
+            document.getElementById(btnId).classList.remove('invisible');
         },
         hideImg: function (btnId) {
-            document.getElementById(btnId).style.display = "none";
+            document.getElementById(btnId).classList.add('invisible');
         },
         rotateShip: function (shipId, btnId) {
             let ship = document.getElementById(shipId);
@@ -300,7 +334,7 @@ var app = new Vue({
         },
         dragStart: function (ev) {
             this.shipDragged = ev.target;
-            setTimeout(() => (this.shipDragged.className = 'invisible'), 0);
+            setTimeout(() => (this.shipDragged.classList.add('invisible')), 0);
         },
         dragEnter: function (ev) {
             this.allGridItemsClassToDrop();
@@ -354,10 +388,7 @@ var app = new Vue({
             let cellRow = +cell.getAttribute("data-cellRow");
             let shipLength = +ship.getAttribute("data-length");
             let shipDirection = ship.getAttribute("data-direction");
-            let className = "grid-item-drop-denied";
-            if (cell.getAttribute("data-drop")=="droppable"){
-                className = "grid-item-drop-allowed";
-            }
+            let className = (cell.getAttribute("data-drop") == "droppable") ? "grid-item-drop-allowed": "grid-item-drop-denied";
 
             if (shipDirection == "H") {
                 let end = cellColumn + shipLength - 1;
@@ -365,7 +396,7 @@ var app = new Vue({
                     end = 10;
                 }
                 for (let i = cellColumn; i <= end; i++) {
-                    document.querySelector("[data-cellPosition=" + this.rowNames[cellRow] + i + "]").className = className;
+                    document.querySelector("[data-cellPosition=" + this.rowNames[cellRow] + i + "]").classList.add(className);
                 }
             } else if (shipDirection == "V") {
                 let end = cellRow + shipLength - 1;
@@ -373,7 +404,7 @@ var app = new Vue({
                     end = 10;
                 }
                 for (let i = cellRow; i <= end; i++) {
-                    document.querySelector("[data-cellPosition=" + this.rowNames[i] + cellColumn + "]").className = className;
+                    document.querySelector("[data-cellPosition=" + this.rowNames[i] + cellColumn + "]").classList.add(className);
                 }
             }
         },
@@ -423,39 +454,14 @@ var app = new Vue({
         },
         allGridItemsClassToDrop: function () {
             Array.from(document.getElementsByClassName("grid-item-drop-allowed")).map(cell => {
-                cell.className = "grid-item-drop"
+                cell.classList.remove("grid-item-drop-allowed");
             });
             Array.from(document.getElementsByClassName("grid-item-drop-denied")).map(cell => {
-                cell.className = "grid-item-drop"
+                cell.classList.remove("grid-item-drop-denied");
             });
         },
-        postSalvoToServer: function () {
-            let salvo = this.currentSalvo;
-            fetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes", {
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    method: 'POST',
-                    body: JSON.stringify(salvo)
-                })
-                .then(response => response.json())
-                .then(myData => {
-                    if (myData.error) {
-                        console.log(myData.error);
-                        alert(myData.error);
-                        this.deleteCurrentSalvo();
-                    } else {
-                        console.log(myData.ok);
-                        // this.startFetch("/api/games/players/" + this.gamePlayersObj.gp.id + "/salvoes");
-                        window.location.reload();
-                    }
-                })
-                .catch(function (error) {
-                    console.log('Request failure: ', error);
-                });
-        },
+
+        //Shot Salvoes
         salvoEnter: function (i) {
             if (!this.isAMarginCell(i) && this.allowAnotherShot()) {
                 let cell = this.getCellByNumber(i);
@@ -508,7 +514,8 @@ var app = new Vue({
         }
     },
     created: function () {
-        this.getURLParams();
-        this.startFetch(this.urlApiGameViewGPID + this.gamePlayersObj.gp.id);
+        this.gamePlayersObj.gp.id = this.getCurrentGamePlayerId();
+        this.urlApiGameViewGPID += this.gamePlayersObj.gp.id;
+        this.startFetch(this.urlApiGameViewGPID);
     }
 });

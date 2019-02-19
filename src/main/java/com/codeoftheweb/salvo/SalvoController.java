@@ -85,11 +85,6 @@ public class SalvoController {
         return makeResponseEntityOfPlaceShipsPOST(gpId, ships, authentication);
     }
 
-//    @RequestMapping("/games/players/{nn}/salvoes")
-//    public ResponseEntity<Map<String, Object>> getResponseEntityOfSalvo(@PathVariable("nn") long gpId, Authentication authentication){
-//        return makeResponseEntityOfSalvoAndHitsDTO(gpId, authentication);
-//    }
-
     @RequestMapping(path = "/games/players/{nn}/salvoes", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> getResponseEntityOfSalvoPost(@PathVariable("nn") long gpId,@RequestBody Salvo salvo, Authentication authentication){
         return makeResponseEntityOfSalvoPOST(gpId, salvo, authentication);
@@ -379,10 +374,7 @@ public class SalvoController {
                     if(currentGamePlayer.getGame().getGamePlayerSet().size()==2) {
                         GamePlayer opponentGamePlayer = currentGamePlayer.getGame().getGamePlayerSet().stream().filter(gamePlayer -> !gamePlayer.getId().equals(currentGamePlayer.getId())).collect(toList()).get(0);
                         if(opponentGamePlayer.getShipSet().size()!=0){
-                            if((currentGamePlayer.getId()<opponentGamePlayer.getId()
-                                    && currentGamePlayer.getSalvoSet().size()==opponentGamePlayer.getSalvoSet().size())
-                                    || (currentGamePlayer.getId()>opponentGamePlayer.getId()
-                                    && currentGamePlayer.getSalvoSet().size()+1==opponentGamePlayer.getSalvoSet().size())){
+                            if(isGamePlayerTurn(currentGamePlayer)){
                                 if(salvo.getSalvoLocations().size() == 5){
                                     boolean incorrectSalvo = currentGamePlayer.getSalvoSet().stream().anyMatch(salvoOtherTurn -> shotsOverlap(salvoOtherTurn.getSalvoLocations(), salvo.getSalvoLocations()));
                                     if(!incorrectSalvo){
@@ -408,6 +400,17 @@ public class SalvoController {
         return new ResponseEntity<>(makeMap("error", "Login to add salvo"), HttpStatus.UNAUTHORIZED);
     }
 
+    private boolean isGamePlayerTurn(GamePlayer currentGamePlayer){
+        GamePlayer opponentGamePlayer = currentGamePlayer.getOpponent();
+        return (currentGamePlayer.getSalvoSet().size()==opponentGamePlayer.getSalvoSet().size()
+                ||
+                currentGamePlayer.getSalvoSet().size() == opponentGamePlayer.getSalvoSet().size()-1);
+//        return (currentGamePlayer.getId()<opponentGamePlayer.getId()
+//                && currentGamePlayer.getSalvoSet().size()==opponentGamePlayer.getSalvoSet().size())
+//                || (currentGamePlayer.getId()>opponentGamePlayer.getId()
+//                && currentGamePlayer.getSalvoSet().size()+1==opponentGamePlayer.getSalvoSet().size());
+    }
+
     private boolean shotsOverlap(List<String> salvoOtherTurnLocations, List<String> salvoLocations) {
 //        for(String shot: salvoLocations){
 //            if(salvoLocations.stream().anyMatch(shot::equals)){
@@ -421,29 +424,4 @@ public class SalvoController {
         }
         return false;
     }
-
-//    private ResponseEntity<Map<String, Object>> makeResponseEntityOfSalvoAndHitsDTO(long gpId, Authentication authentication) {
-//        if(isUserLoggedIn(authentication)){
-//            Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(gpId);
-//            if(optionalGamePlayer.isPresent()){
-//                GamePlayer currentGamePlayer = optionalGamePlayer.get();
-//                Player currentPlayer = playerRepository.findByUserName(authentication.getName());
-//                if(currentGamePlayer.getPlayer().getId().equals(currentPlayer.getId())){
-//                    return new ResponseEntity<>(makeMapOfSalvoAndHitsDTO(currentGamePlayer.getGame().getGamePlayerSet()), HttpStatus.OK);
-//                }
-//                return new ResponseEntity<>(makeMap("error", "The current user is not the game player the ID references"), HttpStatus.UNAUTHORIZED);
-//            }
-//            return new ResponseEntity<>(makeMap("error", "No game player with the given ID"), HttpStatus.UNAUTHORIZED);
-//        }
-//        return new ResponseEntity<>(makeMap("error", "Login to get salvoes"), HttpStatus.UNAUTHORIZED);
-//    }
-
-//    private Map<String, Object> makeMapOfSalvoAndHitsDTO(Set<GamePlayer> gamePlayerSet){
-//        Map<String, Object> dto = new LinkedHashMap<>();
-//        dto.put("salvoes", makeMapOfSalvoDTO(gamePlayerSet));
-//        dto.put("hits", makeMapOfSalvoHitsDTO(gamePlayerSet));
-//        return dto;
-//    }
-
-
 }
