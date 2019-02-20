@@ -3,8 +3,10 @@ package com.codeoftheweb.salvo;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Entity
 public class Ship {
@@ -63,5 +65,22 @@ public class Ship {
     }
 
     //Other Methods
+    public boolean isTheShipSunk(){
+        List<String> shipLocations = this.getShipLocations();
+        List<String> opponentSalvoLocations = this.getGamePlayer().getOpponent().getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
+        return opponentSalvoLocations.containsAll(shipLocations);
+    }
 
+    public List<String> getListOfHitLocations(){
+        List<String> shipLocations = this.getShipLocations();
+        List<String> opponentSalvoLocations = this.getGamePlayer().getOpponent().getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
+        return shipLocations.stream().filter(opponentSalvoLocations::contains).collect(toList());
+    }
+
+    public Map<String,Object> getMapOfShipState(){
+        Map<String,Object> mapOfShipState = new HashMap<>();
+        mapOfShipState.put("isSunk", this.isTheShipSunk());
+        mapOfShipState.put("locations", this.getListOfHitLocations());
+        return mapOfShipState;
+    }
 }

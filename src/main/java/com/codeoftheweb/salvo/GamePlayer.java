@@ -4,10 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -105,5 +102,62 @@ public class GamePlayer {
         }else{
             return null;
         }
+    }
+
+    public boolean isTheGamePlayersTurn(){
+        GamePlayer opponentGamePlayer = this.getOpponent();
+        if(opponentGamePlayer != null){
+            if(opponentGamePlayer.getShipSet().size()!=0){
+                return (this.getSalvoSet().size()==opponentGamePlayer.getSalvoSet().size()
+                        ||
+                        this.getSalvoSet().size() == opponentGamePlayer.getSalvoSet().size()-1);
+            }
+        }
+        return false;
+    }
+
+    public Map<String, Map<String,Object>> getMapOfShipsState(){
+        Map<String, Map<String,Object>> mapOfShipsState = new HashMap<>();
+        for(Ship ship: this.getShipSet()){
+            mapOfShipsState.put(ship.getType(),ship.getMapOfShipState());
+        }
+        return mapOfShipsState;
+    }
+
+    public String getGameStatusMessage(){
+        //Place Ships, Wait, Enter Salvo, Game Over
+        if(this.getShipSet().size() == 0) {
+            return "Place Ships";
+        } else if(this.getGame().isTheGameOver()){
+            return "Game Over";
+        }else if(this.isTheGamePlayersTurn()){
+            return "Enter Salvo";
+        }else {
+            return "Wait";
+        }
+    }
+
+    public boolean isAllowedToEnterSalvo() {
+        return (this.getShipSet().size() != 0) && !this.getGame().isTheGameOver() && this.isTheGamePlayersTurn();
+    }
+
+    public boolean sunkAllOpponentShips(){
+        List<String> listOfSalvoLocations = this.getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
+        List<String> listOfShipLocationsOfOpponent = this.getOpponent().getShipSet().stream().map(Ship::getShipLocations).flatMap(Collection::stream).collect(toList());
+
+        return listOfSalvoLocations.containsAll(listOfShipLocationsOfOpponent);
+    }
+
+    public Double calculateScore(){
+        if(this.getGame().isTheGameOver()){
+            if(this.sunkAllOpponentShips() && this.getOpponent().sunkAllOpponentShips()){
+                return 0.5;
+            } else if(this.sunkAllOpponentShips() && !this.getOpponent().sunkAllOpponentShips()){
+                return 1.0;
+            }else {
+                return 0.0;
+            }
+        }
+        return null;
     }
 }

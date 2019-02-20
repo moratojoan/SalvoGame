@@ -17,7 +17,7 @@ var app = new Vue({
                 id: null,
                 email: null
             },
-            oponent: {
+            opponent: {
                 id: null,
                 email: null
             }
@@ -185,16 +185,16 @@ var app = new Vue({
             if (gamePlayers.length == 2) {
                 if (gamePlayers[0].id == this.gamePlayersObj.gp.id) {
                     this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
-                    this.gamePlayersObj.oponent.id = gamePlayers[1].id;
-                    this.gamePlayersObj.oponent.email = gamePlayers[1].player.email;
+                    this.gamePlayersObj.opponent.id = gamePlayers[1].id;
+                    this.gamePlayersObj.opponent.email = gamePlayers[1].player.email;
                 } else {
                     this.gamePlayersObj.gp.email = gamePlayers[1].player.email;
-                    this.gamePlayersObj.oponent.id = gamePlayers[0].id;
-                    this.gamePlayersObj.oponent.email = gamePlayers[0].player.email;
+                    this.gamePlayersObj.opponent.id = gamePlayers[0].id;
+                    this.gamePlayersObj.opponent.email = gamePlayers[0].player.email;
                 }
             } else {
                 this.gamePlayersObj.gp.email = gamePlayers[0].player.email;
-                this.gamePlayersObj.oponent.email = "'WAITING FOR AN OPONENT!'";
+                this.gamePlayersObj.opponent.email = "'WAITING FOR AN OPPONENT!'";
             }
         },
 
@@ -207,8 +207,8 @@ var app = new Vue({
             }
             return false;
         },
-        thereIsASalvoOponent: function (i) {
-            let salvoes = this.gameData.salvoes[this.gamePlayersObj.oponent.id];
+        thereIsASalvoOpponent: function (i) {
+            let salvoes = this.gameData.salvoes[this.gamePlayersObj.opponent.id];
             let cellPosition = this.getCellPosition(i);
             for (key in salvoes) {
                 if (salvoes[key].includes(cellPosition)) {
@@ -238,16 +238,16 @@ var app = new Vue({
             return "grid-item-OP-Salvo-noHit";
         },
         mySalvoHitAOPShip(cellPosition) {
-            for (key in this.gameData.hits[this.gamePlayersObj.gp.id]) {
-                if (this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)) {
+            for (key in this.gameData.hits[this.gamePlayersObj.opponent.id]) {
+                if (this.gameData.hits[this.gamePlayersObj.opponent.id][key].locations.includes(cellPosition)) {
                     return true;
                 }
             }
         },
         mySalvoSunkAShip(cellPosition) {
-            for (key in this.gameData.hits[this.gamePlayersObj.gp.id]) {
-                if (this.gameData.hits[this.gamePlayersObj.gp.id][key].locations.includes(cellPosition)) {
-                    return this.gameData.hits[this.gamePlayersObj.gp.id][key].isSunk;
+            for (key in this.gameData.hits[this.gamePlayersObj.opponent.id]) {
+                if (this.gameData.hits[this.gamePlayersObj.opponent.id][key].locations.includes(cellPosition)) {
+                    return this.gameData.hits[this.gamePlayersObj.opponent.id][key].isSunk;
                 }
             }
         },
@@ -256,7 +256,7 @@ var app = new Vue({
             if (this.rowNames.includes(cellPosition) || this.columnNames.includes(cellPosition)) {
                 return cellPosition;
             } else {
-                let thereIsASalvo = this.thereIsASalvoOponent(i);
+                let thereIsASalvo = this.thereIsASalvoOpponent(i);
                 if (thereIsASalvo[0]) {
                     return thereIsASalvo[1];
                 }
@@ -338,9 +338,8 @@ var app = new Vue({
         },
         dragEnter: function (ev) {
             this.allGridItemsClassToDrop();
-            console.log("enter", ev.target.getAttribute("data-cellPosition"));
-            let cell = ev.target;
 
+            let cell = ev.target;
             if (this.insideTheGrid(cell)) {
                 if (this.correctPlaced(cell, this.shipDragged)) {
                     cell.setAttribute("data-drop", "droppable");
@@ -412,7 +411,7 @@ var app = new Vue({
             ev.preventDefault();
         },
         dragLeave: function (ev) {
-            console.log("leave", ev.target.getAttribute("data-cellPosition"));
+            
         },
         dragDrop: function (ev) {
             ev.preventDefault();

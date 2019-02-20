@@ -30,14 +30,14 @@
                         <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item">
                             <div v-if="isAMarginCell(i)" class="grid-item-GP-Margin">{{getCellNameShips(i)}}</div>
                             <div v-else-if="thereIsAShip(i)" class="grid-item-GP-Ship">
-                                <div v-if="thereIsASalvoOponent(i)[0]" class="grid-item-GP-Ship-Salvo">{{getCellNameShips(i)}}</div>
+                                <div v-if="thereIsASalvoOpponent(i)[0]" class="grid-item-GP-Ship-Salvo">{{getCellNameShips(i)}}</div>
                             </div>
-                            <div v-else-if="thereIsASalvoOponent(i)[0]" class="grid-item-GP-noShip-Salvo">{{getCellNameShips(i)}}</div>
+                            <div v-else-if="thereIsASalvoOpponent(i)[0]" class="grid-item-GP-noShip-Salvo">{{getCellNameShips(i)}}</div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <h3>Oponent: {{gamePlayersObj.oponent.email}}</h3>
+                    <h3>Opponent: {{gamePlayersObj.opponent.email}}</h3>
                     <div class="grid-container grid-container-salvoes">
                         <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item" v-on:mouseenter="salvoEnter(i)" v-on:mouseleave="salvoLeave(i)" v-on:click="salvoClick(i)">
                             <div v-if="isAMarginCell(i)" class="grid-item-OP-Margin">{{getCellNameSalvoes(i)}}</div>

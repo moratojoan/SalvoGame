@@ -4,10 +4,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -59,4 +56,18 @@ public class Game {
     public List<Player> getPlayers(){
         return this.gamePlayerSet.stream().map(GamePlayer::getPlayer).collect(toList());
     }
+
+    public boolean isTheGameOver(){
+        List<GamePlayer> gamePlayers = new ArrayList<>(this.getGamePlayerSet());
+        if(gamePlayers.size() == 2){
+            if(gamePlayers.get(0).getShipSet().size()>0 && gamePlayers.get(1).getShipSet().size()>0){
+                if(gamePlayers.get(0).getSalvoSet().size() == gamePlayers.get(1).getSalvoSet().size()){
+                    return gamePlayers.get(0).sunkAllOpponentShips() || gamePlayers.get(1).sunkAllOpponentShips();
+                }
+            }
+        }
+        return false;
+    }
+
+
 }
