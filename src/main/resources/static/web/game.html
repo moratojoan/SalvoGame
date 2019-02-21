@@ -23,6 +23,11 @@
                 </form>
             </div>
 
+            <h2 class="game-status-box">
+                Game Status: {{gameData.status.message}}
+                <span v-if="gameData.status.message=='Enter Salvo'"> Turn {{getTurn()}}</span>
+            </h2>
+
             <div v-if="gameData.ships.length>0" class="grids-box">
                 <div>
                     <h3>Your Ships: {{gamePlayersObj.gp.email}}</h3>
@@ -46,7 +51,7 @@
                         </div>
                     </div>
                 </div>
-                <div>
+                <div v-if="gameData.status.allowedToEnterSalvo">
                     <h3>N. Shots</h3>
                     <p>{{MAX_NUMBER_SHOTS-currentSalvo.salvoLocations.length}}</p>
                     <button v-on:click="postSalvoToServer">Send Salvo</button>

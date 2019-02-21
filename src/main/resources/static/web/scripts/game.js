@@ -1,16 +1,13 @@
 var app = new Vue({
     el: "#app",
     data: {
-        //Grid Construction
         gridSize: 11,
         rowNames: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         columnNames: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
-        //Wait for the first fetch
+        intervalId: null,
         loading: true,
-        //Urls
         urlGamesPage: "games.html",
         urlApiGameViewGPID: "/api/game_view/",
-        //Data
         gameData: null,
         gamePlayersObj: {
             gp: {
@@ -23,7 +20,8 @@ var app = new Vue({
             }
         },
         shipDragged: null,
-        listOfShips: [{
+        listOfShips: [
+            {
                 type: "Aircraft Carrier",
                 shipLocations: []
             },
@@ -44,7 +42,7 @@ var app = new Vue({
                 shipLocations: []
             }
         ],
-        MAX_NUMBER_SHOTS: 5,
+        MAX_NUMBER_SHOTS: 0,
         currentSalvo: {
             turn: null,
             salvoLocations: []
@@ -71,6 +69,18 @@ var app = new Vue({
                         this.gameData = myData;
                         console.log(myData);
                         this.fillGamePlayersObj();
+
+                        this.MAX_NUMBER_SHOTS = (this.gameData.status.allowedToEnterSalvo) ? 5 : 0;
+
+                        if(this.intervalId === null && this.gameData.status.message != "The Game Is Over"){
+                            console.log("if interval === null");
+                            this.startFetchInterval(url);
+                        }
+                        if(this.gameData.status.message === "The Game Is Over" && this.intervalId != null){
+                            console.log("if The Game Is Over");
+                            this.stopFetchInterval();
+                        }
+
                         this.loading = false;
                     }
                 })
@@ -274,6 +284,9 @@ var app = new Vue({
                 }
             }
             return null;
+        },
+        getTurn: function(){
+            return Object.keys(this.gameData.salvoes[this.getCurrentGamePlayerId()]).length + 1;
         },
 
         //Place Ships
@@ -510,6 +523,21 @@ var app = new Vue({
         deleteCurrentShots: function (pos) {
             let cell = this.getCellByPos(pos);
             cell.children[0].className = "grid-item-OP-Salvo-Empty";
+        },
+        startFetchInterval: function(url){
+            console.log("start interval")
+            const INTERVAL = 5000;
+            let i=0;
+            this.intervalId = setInterval(() => {
+                console.log("interval " + i);
+                i++;
+                this.startFetch(url); 
+            }, INTERVAL);
+            console.log("intervalId", this.intervalId);
+        },
+        stopFetchInterval: function(){
+            console.log("stop interval")
+            clearInterval(this.intervalId);
         }
     },
     created: function () {

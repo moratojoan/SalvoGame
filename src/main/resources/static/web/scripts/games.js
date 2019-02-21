@@ -11,10 +11,31 @@ var app = new Vue({
         gamesList: null,
         currentPlayer: null,
         leaderBoard: null,
+        intervalId: null,
         loading: true
     },
     methods: {
         //FetchList with Promise.all()
+        startFetchList: function (URLS, INIT) {
+            this.fetchJsonList(URLS, INIT)
+            .then(([gamesData, leaderBoard]) => {
+                this.gamesList = gamesData.games;
+                if(gamesData.player){
+                    this.currentPlayer = gamesData.player;
+                }
+                this.leaderBoard = leaderBoard;
+
+                if(this.intervalId === null){
+                    console.log("if interval === null");
+                    this.startFetchListInterval(URLS, INIT);
+                }
+
+                this.loading = false;
+            });
+        },
+        fetchJsonList: function (urls, init) {
+            return Promise.all(urls.map(url => this.fetchJson(url, init)));
+        },
         fetchJson: function (url, init) {
             return fetch(url, init)
             .then(response => {
@@ -24,26 +45,23 @@ var app = new Vue({
                 throw new Error(response.statusText);
             });
         },
-        fetchJsonList: function (urls, init) {
-            return Promise.all(urls.map(url => this.fetchJson(url, init)));
-        },
-        startFetchList: function (urls, init) {
-            this.fetchJsonList(urls, init)
-            .then(values => {
-                this.gamesList = values[0].games;
-                if (values[0].player) {
-                    this.currentPlayer = values[0].player;
-                }
-                this.leaderBoard = values[1];
-                this.loading = false;
-            });
-        },
-        //Method to convert milliseds to StringHour
+        
         convertMillisecondsToDate: function (milliseconds) {
             let date = new Date(milliseconds);
-            return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " - " + date.getHours() + ":" + date.getMinutes();
+            return this.correctDigitsOfDateNumber(date.getDate()) + "/" +
+                    this.correctDigitsOfDateNumber(date.getMonth() + 1) + "/" +
+                    this.correctDigitsOfDateNumber(date.getFullYear()) + " - " +
+                    this.correctDigitsOfDateNumber(date.getHours()) + ":" +
+                    this.correctDigitsOfDateNumber(date.getMinutes());
         },
-        //Methods to login, logout and signup
+        correctDigitsOfDateNumber: function(number){
+            stringNumber = number+"";
+            if(stringNumber.length == 1){
+                stringNumber = "0" + stringNumber;
+            }
+            return stringNumber;
+        },
+        
         login: function () {
             fetch(this.urlLogin, {
                     credentials: 'include',
@@ -104,7 +122,7 @@ var app = new Vue({
                     console.log('Request failure: ', error);
                 });
         },
-        //Other Methods
+        
         playerCanEnterThisGame: function (game) {
             if (this.currentPlayer != null) {
                 return (this.filterGamePlayers(game).length == 1);
@@ -170,6 +188,22 @@ var app = new Vue({
                     }
                 })
                 .catch(function (error) {});
+        },
+
+        startFetchListInterval: function(URLS, INIT){
+            console.log("start interval")
+            const INTERVAL = 30000;
+            let i=0;
+            this.intervalId = setInterval(() => {
+                console.log("interval " + i);
+                i++;
+                this.startFetchList(URLS, INIT);
+            }, INTERVAL);
+            console.log("intervalId", this.intervalId);
+        },
+        stopFetchListInterval: function(){
+            console.log("stop interval")
+            clearInterval(this.intervalId);
         }
     },
     created: function () {

@@ -141,11 +141,11 @@ public class GamePlayer {
         if(this.getShipSet().size() == 0) {
             return "Place Ships";
         } else if(this.getGame().isTheGameOver()){
-            return "Game Over";
+            return "The Game Is Over";
         }else if(this.isTheGamePlayersTurn()){
             return "Enter Salvo";
         }else {
-            return "Wait";
+            return "Wait For The Other Player";
         }
     }
 

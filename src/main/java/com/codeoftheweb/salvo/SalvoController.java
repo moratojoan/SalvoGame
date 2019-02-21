@@ -205,7 +205,6 @@ public class SalvoController {
 
         scoreRepository.save(sc1);
         scoreRepository.save(sc2);
-        System.out.println("Scores Added");
 
     }
 
@@ -402,7 +401,7 @@ public class SalvoController {
     }
 
     private ResponseEntity<Map<String, Object>> makeResponseEntityOfSalvoPOST(long gpId, Salvo salvo, Authentication authentication){
-        System.out.println("SalvoPost");
+
         if(!isUserLoggedIn(authentication)){
             return new ResponseEntity<>(makeMap("error", "User not Logged In"), HttpStatus.UNAUTHORIZED);
         }
