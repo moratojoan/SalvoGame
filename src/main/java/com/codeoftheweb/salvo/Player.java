@@ -68,6 +68,7 @@ public class Player {
         return this.scoreSet;
     }
 
+
     //Other Methods
     @JsonIgnore
     public List<Game> getGames(){

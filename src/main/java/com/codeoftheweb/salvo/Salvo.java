@@ -62,6 +62,4 @@ public class Salvo {
         this.salvoLocations = salvoLocations;
     }
 
-    //Other Methods
-
 }

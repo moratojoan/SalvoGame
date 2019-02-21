@@ -3,7 +3,6 @@ package com.codeoftheweb.salvo;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -58,16 +57,36 @@ public class Game {
     }
 
     public boolean isTheGameOver(){
-        List<GamePlayer> gamePlayers = new ArrayList<>(this.getGamePlayerSet());
-        if(gamePlayers.size() == 2){
-            if(gamePlayers.get(0).getShipSet().size()>0 && gamePlayers.get(1).getShipSet().size()>0){
-                if(gamePlayers.get(0).getSalvoSet().size() == gamePlayers.get(1).getSalvoSet().size()){
-                    return gamePlayers.get(0).sunkAllOpponentShips() || gamePlayers.get(1).sunkAllOpponentShips();
-                }
-            }
+
+        if(!this.areTwoGamePlayersInTheGame()){
+            return false;
         }
-        return false;
+
+        if(!this.allShipsArePlaced()){
+            return false;
+        }
+
+        if(!this.theTwoGamePlayersHaveCompletedTheTurn()){
+            return false;
+        }
+
+        List<GamePlayer> gamePlayers = new ArrayList<>(this.getGamePlayerSet());
+        return gamePlayers.get(0).sunkAllOpponentShips() || gamePlayers.get(1).sunkAllOpponentShips();
     }
 
+    private boolean areTwoGamePlayersInTheGame(){
+        List<GamePlayer> gamePlayers = new ArrayList<>(this.getGamePlayerSet());
+        return gamePlayers.size() == 2;
+    }
+
+    private boolean allShipsArePlaced(){
+        List<GamePlayer> gamePlayers = new ArrayList<>(this.getGamePlayerSet());
+        return gamePlayers.get(0).getShipSet().size()>0 && gamePlayers.get(1).getShipSet().size()>0;
+    }
+
+    private boolean theTwoGamePlayersHaveCompletedTheTurn(){
+        List<GamePlayer> gamePlayers = new ArrayList<>(this.getGamePlayerSet());
+        return gamePlayers.get(0).getSalvoSet().size() == gamePlayers.get(1).getSalvoSet().size();
+    }
 
 }

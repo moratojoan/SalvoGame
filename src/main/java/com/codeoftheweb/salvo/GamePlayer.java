@@ -3,7 +3,6 @@ package com.codeoftheweb.salvo;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -80,6 +79,7 @@ public class GamePlayer {
         return this.salvoSet;
     }
 
+
     //Other Methods
     public void addShip(Ship ship){
         ship.setGamePlayer(this);
@@ -96,31 +96,43 @@ public class GamePlayer {
     }
 
     public GamePlayer getOpponent(){
-        List<GamePlayer> gamePlayerList = this.getGame().getGamePlayerSet().stream().filter(gamePlayer -> !gamePlayer.getId().equals(this.getId())).collect(toList());
-        if(gamePlayerList.size()>0){
-            return gamePlayerList.get(0);
-        }else{
+        List<GamePlayer> gamePlayerListFiltered = this.getGame()
+                .getGamePlayerSet()
+                .stream()
+                .filter(gamePlayer -> !gamePlayer.getId().equals(this.getId()))
+                .collect(toList());
+
+        if(gamePlayerListFiltered.size()==0){
             return null;
         }
+
+        return gamePlayerListFiltered.get(0);
     }
 
     public boolean isTheGamePlayersTurn(){
         GamePlayer opponentGamePlayer = this.getOpponent();
-        if(opponentGamePlayer != null){
-            if(opponentGamePlayer.getShipSet().size()!=0){
-                return (this.getSalvoSet().size()==opponentGamePlayer.getSalvoSet().size()
-                        ||
-                        this.getSalvoSet().size() == opponentGamePlayer.getSalvoSet().size()-1);
-            }
+
+        if(opponentGamePlayer == null){
+            return false;
         }
-        return false;
+
+        if(opponentGamePlayer.getShipSet().size() == 0){
+            return false;
+        }
+
+        return (this.getSalvoSet().size()==opponentGamePlayer.getSalvoSet().size()
+                ||
+                this.getSalvoSet().size() == opponentGamePlayer.getSalvoSet().size()-1);
+
     }
 
     public Map<String, Map<String,Object>> getMapOfShipsState(){
         Map<String, Map<String,Object>> mapOfShipsState = new HashMap<>();
+
         for(Ship ship: this.getShipSet()){
             mapOfShipsState.put(ship.getType(),ship.getMapOfShipState());
         }
+
         return mapOfShipsState;
     }
 
@@ -149,15 +161,16 @@ public class GamePlayer {
     }
 
     public Double calculateScore(){
-        if(this.getGame().isTheGameOver()){
-            if(this.sunkAllOpponentShips() && this.getOpponent().sunkAllOpponentShips()){
-                return 0.5;
-            } else if(this.sunkAllOpponentShips() && !this.getOpponent().sunkAllOpponentShips()){
-                return 1.0;
-            }else {
-                return 0.0;
-            }
+        if(!this.getGame().isTheGameOver()){
+            return null;
         }
-        return null;
+
+        if(this.sunkAllOpponentShips() && this.getOpponent().sunkAllOpponentShips()){
+            return 0.5;
+        } else if(this.sunkAllOpponentShips() && !this.getOpponent().sunkAllOpponentShips()){
+            return 1.0;
+        }else {
+            return 0.0;
+        }
     }
 }

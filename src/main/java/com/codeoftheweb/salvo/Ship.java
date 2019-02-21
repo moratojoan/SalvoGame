@@ -4,7 +4,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -64,16 +63,27 @@ public class Ship {
         this.shipLocations = shipLocations;
     }
 
+
     //Other Methods
     public boolean isTheShipSunk(){
+        GamePlayer opponent = this.getGamePlayer().getOpponent();
+        if(opponent == null){
+            return false;
+        }
+
+        List<String> opponentSalvoLocations = opponent.getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
         List<String> shipLocations = this.getShipLocations();
-        List<String> opponentSalvoLocations = this.getGamePlayer().getOpponent().getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
         return opponentSalvoLocations.containsAll(shipLocations);
     }
 
     public List<String> getListOfHitLocations(){
+        GamePlayer opponent = this.getGamePlayer().getOpponent();
+        if(opponent == null){
+            return new ArrayList<>();
+        }
+
+        List<String> opponentSalvoLocations = opponent.getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
         List<String> shipLocations = this.getShipLocations();
-        List<String> opponentSalvoLocations = this.getGamePlayer().getOpponent().getSalvoSet().stream().map(Salvo::getSalvoLocations).flatMap(Collection::stream).collect(toList());
         return shipLocations.stream().filter(opponentSalvoLocations::contains).collect(toList());
     }
 

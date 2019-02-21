@@ -23,12 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.Date;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
 
 @SpringBootApplication
 public class SalvoApplication {
@@ -70,13 +67,6 @@ public class SalvoApplication {
             Game g6 = new Game();
             Game g7 = new Game();
             Game g8 = new Game();
-//            g2.setCreationDateTime(LocalDateTime.ofInstant(g2.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(3600), ZoneOffset.UTC));
-//            g3.setCreationDateTime(LocalDateTime.ofInstant(g3.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(2 * 3600), ZoneOffset.UTC));
-//            g4.setCreationDateTime(LocalDateTime.ofInstant(g4.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(3 * 3600), ZoneOffset.UTC));
-//            g5.setCreationDateTime(LocalDateTime.ofInstant(g5.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(4 * 3600), ZoneOffset.UTC));
-//            g6.setCreationDateTime(LocalDateTime.ofInstant(g6.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(5 * 3600), ZoneOffset.UTC));
-//            g7.setCreationDateTime(LocalDateTime.ofInstant(g7.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(6 * 3600), ZoneOffset.UTC));
-//            g8.setCreationDateTime(LocalDateTime.ofInstant(g8.getCreationDateTime().toInstant(ZoneOffset.UTC).plusSeconds(7 * 3600), ZoneOffset.UTC));
             g2.setCreationDateTime(Date.from(g1.getCreationDateTime().toInstant().plusSeconds(3600)));
             g3.setCreationDateTime(Date.from(g1.getCreationDateTime().toInstant().plusSeconds(2*3600)));
             g4.setCreationDateTime(Date.from(g1.getCreationDateTime().toInstant().plusSeconds(3*3600)));
