@@ -192,7 +192,7 @@ var app = new Vue({
 
         startFetchListInterval: function(URLS, INIT){
             console.log("start interval")
-            const INTERVAL = 30000;
+            const INTERVAL = 10000;
             let i=0;
             this.intervalId = setInterval(() => {
                 console.log("interval " + i);

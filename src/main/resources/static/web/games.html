@@ -5,79 +5,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Games</title>
+    <title>Battleship</title>
+    <link rel="stylesheet" href="styles/reset.css">
     <link rel="stylesheet" href="styles/style.css">
 </head>
 
 <body>
     <div id="app">
-        <div v-if="!loading" class="page-container">
-            <h1>Salvo</h1>
-            <h2 v-if="currentPlayer!=null">{{currentPlayer.email}}</h2>
-            <form v-if="currentPlayer==null" onsubmit="return false">
-                <label>Name: <input type="text" v-model:name="formUserName"></label>
-                <label>Password: <input type="password" v-model:name="formPassword"></label>
-                <div>
-                    <button v-on:click="login()">Login</button>
-                    <button v-on:click="signup()">Signup</button>
+        <div v-if="!loading">
+            <div class="navbar">
+                <div class="navbar-container">
+                    <div class="navbar-logo">
+                        Battleship
+                    </div>
+                    <div class="form-box">
+                        <form v-if="currentPlayer==null" onsubmit="return false" class="login-form">
+                            <label>Email: <input type="text" v-model:name="formUserName" placeholder="Email"></label>
+                            <label>Password: <input type="password" v-model:name="formPassword" placeholder="Password"></label>
+                            <button v-on:click="login()">Log in</button>
+                            <button v-on:click="signup()">Sign up</button>
+                        </form>
+                        <form v-else onsubmit="return false" class="logout-form">
+                            <h2 v-if="currentPlayer!=null">You: {{currentPlayer.email}}</h2>
+                            <button v-on:click="logout()">Log out</button>
+                        </form>
+                    </div>
                 </div>
-            </form>
+            </div>
+            <div class="page-container">
+                <h1>Battleship</h1>
+                <div>
+                    <h3>Games List</h3>
+                    <button v-if="currentPlayer!=null" v-on:click="createNewGame()">Create New Game</button>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Game ID</th>
+                                <th>Created</th>
+                                <th>Player 1</th>
+                                <th>Player 2</th>
+                                <th>Game Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="game in gamesList">
+                                <td>{{game.id}}</td>
+                                <td>{{convertMillisecondsToDate(game.created)}}</td>
+                                <td v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</td>
+                                <td v-if="game.gamePlayers.length==1">Waiting for an oponent!</td>
+                                <td v-if="playerCanEnterThisGame(game)"><button v-on:click="enterGameButtonHref(game)">Enter
+                                        Game</button></td>
+                                <td v-else-if="playerCanJoinThisGame(game)"><button v-on:click="joinGameButtonHref(game)">Join
+                                        Game</button></td>
+                                <td v-else>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-            <form v-else onsubmit="return false">
-                <button v-on:click="logout()">Log out</button>
-            </form>
-            <div>
-                <h3>Games List</h3>
-                <button v-on:click="createNewGame()">Create New Game</button>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Game ID</th>
-                            <th>Created</th>
-                            <th>Player 1</th>
-                            <th>Player 2</th>
-                            <th>Game Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="game in gamesList">
-                            <td>{{game.id}}</td>
-                            <td>{{convertMillisecondsToDate(game.created)}}</td>
-                            <td v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</td>
-                            <td v-if="game.gamePlayers.length==1">Waiting for an oponent!</td>
-                            <td v-if="playerCanEnterThisGame(game)"><button v-on:click="enterGameButtonHref(game)">Enter Game</button></td>
-                            <td v-else-if="playerCanJoinThisGame(game)"><button v-on:click="joinGameButtonHref(game)">Join Game</button></td>
-                            <td v-else>-</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div>
+                    <h3>Leaderboard</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Total Score</th>
+                                <th>Games Played</th>
+                                <th>W</th>
+                                <th>D</th>
+                                <th>L</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="player in leaderBoard">
+                                <td>{{player.email}}</td>
+                                <td>{{player.totalScore}}</td>
+                                <td>{{player.numberOfGamesEnded}}</td>
+                                <td>{{player.wins}}</td>
+                                <td>{{player.draws}}</td>
+                                <td>{{player.losses}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div>
-                <h3>Leaderboard</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Total Score</th>
-                            <th>Games Played</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="player in leaderBoard">
-                            <td>{{player.email}}</td>
-                            <td>{{player.totalScore}}</td>
-                            <td>{{player.numberOfGamesEnded}}</td>
-                            <td>{{player.wins}}</td>
-                            <td>{{player.draws}}</td>
-                            <td>{{player.losses}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 

@@ -1,24 +1,142 @@
+html {
+  font-size: 16px;
+}
+
+.navbar {
+  /* box */
+  height: 90px;
+  padding: 5px;
+  background-color: black;
+  position: sticky;
+  top: 0;
+
+  /* text */
+  color: rgb(196, 196, 196);
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.navbar-container {
+  /* box */
+  width: 1200px;
+  height: 100%;
+  margin: auto;
+
+  /* DISPLAY FLEX */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  /* box */
+  height: 85%;
+  background: red;
+  border-radius: 500px;
+  padding: 5px;
+  margin-left: 30px;
+  /* text */
+  color: white;
+  line-height: 80px;
+}
+
+.form-box {
+  /* box */
+  height: 100%;
+  width: 100%;
+
+  /* DISPLAY FLEX */
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.game-form,
+.login-form,
+.logout-form {
+  /* box */
+  height: 100%;
+  width: 70%;
+
+  /* DISPLAY FLEX */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-form{
+    /* box */
+    height: 100%;
+    width: 100%;
+  
+    /* DISPLAY FLEX */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-form button,
+.login-form button,
+.logout-form button {
+  /* box */
+  height: 100%;
+  background-color: black;
+  border: none;
+  /* text */
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(196, 196, 196);
+  /* cursor */
+  cursor: pointer;
+}
+
+.logout-form button {
+  width: 40%;
+}
+
+.login-form button {
+  width: 20%;
+}
+
+.login-form button:hover,
+.logout-form button:hover {
+  color: white;
+}
+
 .page-container {
   /* box */
-  width: 1300px;
+  width: 1000px;
   margin: auto;
 }
 
-.buttons-group {
-  /* box */
-  display: flex;
+.page-container > div {
+  margin-bottom: 60px;
 }
 
 h1,
 h3 {
-  /* box */
-  margin: 0;
   /* text */
   text-align: center;
 }
 
+h1 {
+  height: 150px;
+  line-height: 150px;
+  font-size: 65px;
+}
 
-.game-status-box{
+h3 {
+  height: 80px;
+  line-height: 80px;
+  font-size: 30px;
+}
+
+
+.game-status-box {
   /* box */
   height: 50px;
   width: 800px;
@@ -34,6 +152,11 @@ table {
   /* box */
   width: 100%;
   border-collapse: collapse;
+}
+
+th {
+  font-weight: bold;
+  border-bottom: thin solid black;
 }
 
 th,
@@ -174,7 +297,7 @@ tr:nth-child(even) {
 }
 
 .grid-item-OP-Salvo-Hit,
-.grid-item-OP-Salvo-Sunk{
+.grid-item-OP-Salvo-Sunk {
   /* text */
   text-align: center;
   line-height: 46px;

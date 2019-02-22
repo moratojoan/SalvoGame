@@ -526,7 +526,7 @@ var app = new Vue({
         },
         startFetchInterval: function(url){
             console.log("start interval")
-            const INTERVAL = 5000;
+            const INTERVAL = 2000;
             let i=0;
             this.intervalId = setInterval(() => {
                 console.log("interval " + i);
