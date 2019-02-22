@@ -18,24 +18,18 @@
                 <div class="navbar-container">
                     <form onsubmit="return false" class="game-form">
                         <button v-on:click="goToHomePage()">Home Page</button>
-                        <div class="navbar-logo">
-                            Battleship
-                        </div>
+                        <p class="game-status-box">
+                            Game Status: {{gameData.status.message}}
+                            <span v-if="gameData.status.message=='Enter Salvo'"> Turn {{getTurn()}}</span>
+                        </p>
                         <button v-on:click="logout()">Log out</button>
                     </form>
                 </div>
             </div>
             <div class="page-container">
-                <h1>Ship Locations</h1>
-
-                <h2 class="game-status-box">
-                    Game Status: {{gameData.status.message}}
-                    <span v-if="gameData.status.message=='Enter Salvo'"> Turn {{getTurn()}}</span>
-                </h2>
-
                 <div v-if="gameData.ships.length>0" class="grids-box">
                     <div>
-                        <h3>Your Ships: {{gamePlayersObj.gp.email}}</h3>
+                        <h3>You: {{gamePlayersObj.gp.email}}</h3>
                         <div class="grid-container grid-container-ships">
                             <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item">
                                 <div v-if="isAMarginCell(i)" class="grid-item-GP-Margin">{{getCellNameShips(i)}}</div>
@@ -47,7 +41,15 @@
                         </div>
                     </div>
                     <div>
-                        <h3>Opponent: {{gamePlayersObj.opponent.email}}</h3>
+                        <div class="opponent-title-box">
+                            <h3>Opponent: {{gamePlayersObj.opponent.email}}</h3>
+                            <div v-if="gameData.status.allowedToEnterSalvo" class="shots-box">
+                                <h4>N. Shots</h4>
+                                <p>{{MAX_NUMBER_SHOTS-currentSalvo.salvoLocations.length}}</p>
+                                <button v-on:click="postSalvoToServer">Send Salvo</button>
+                            </div>
+                        </div>
+
                         <div class="grid-container grid-container-salvoes">
                             <div v-for="i in gridSize*gridSize" v-bind:data-cellPosition="getCellPosition(i)" class="grid-item"
                                 v-on:mouseenter="salvoEnter(i)" v-on:mouseleave="salvoLeave(i)" v-on:click="salvoClick(i)">
@@ -56,11 +58,7 @@
                                 <div v-else class="grid-item-OP-Salvo-Empty"></div>
                             </div>
                         </div>
-                    </div>
-                    <div v-if="gameData.status.allowedToEnterSalvo">
-                        <p>N. Shots</p>
-                        <p>{{MAX_NUMBER_SHOTS-currentSalvo.salvoLocations.length}}</p>
-                        <button v-on:click="postSalvoToServer">Send Salvo</button>
+
                     </div>
                 </div>
                 <div v-else class="grids-box">
