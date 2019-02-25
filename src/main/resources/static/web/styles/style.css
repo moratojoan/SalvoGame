@@ -192,6 +192,8 @@ tr:nth-child(even) {
 }
 
 .grids-box>div {
+  /* box */
+  margin-top: 20px;
   /* DISPLAY FLEX */
   display: flex;
   flex-direction: column;

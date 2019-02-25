@@ -62,11 +62,13 @@
                     </div>
                 </div>
                 <div v-else class="grids-box">
-                    <div class="grid-container grid-container-ships">
-                        <div v-for="i in gridSize*gridSize" class="grid-item-drop" v-bind:data-cellPosition="getCellPosition(i)"
-                            v-bind:data-cellRow="getRow(i)" v-bind:data-cellColumn="getColumn(i)" v-on:dragenter="dragEnter"
-                            v-on:dragover="allowDrop" v-on:dragleave="dragLeave" v-on:drop="dragDrop">
-                            <div v-if="isAMarginCell(i)" class="grid-item-GP-Margin">{{getCellNameShips(i)}}</div>
+                    <div>
+                        <div class="grid-container grid-container-ships">
+                            <div v-for="i in gridSize*gridSize" class="grid-item-drop" v-bind:data-cellPosition="getCellPosition(i)"
+                                v-bind:data-cellRow="getRow(i)" v-bind:data-cellColumn="getColumn(i)" v-on:dragenter="dragEnter"
+                                v-on:dragover="allowDrop" v-on:dragleave="dragLeave" v-on:drop="dragDrop">
+                                <div v-if="isAMarginCell(i)" class="grid-item-GP-Margin">{{getCellNameShips(i)}}</div>
+                            </div>
                         </div>
                     </div>
                     <div>
