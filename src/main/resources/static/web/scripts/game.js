@@ -62,22 +62,18 @@ var app = new Vue({
                 .then(response => response.json())
                 .then(myData => {
                     if (myData.error) {
-                        console.log(myData.error);
                         alert(myData.error);
                         history.back();
                     } else {
                         this.gameData = myData;
-                        console.log(myData);
                         this.fillGamePlayersObj();
 
                         this.MAX_NUMBER_SHOTS = (this.gameData.status.allowedToEnterSalvo) ? 5 : 0;
 
                         if(this.intervalId === null && this.gameData.status.message != "The Game Is Over"){
-                            console.log("if interval === null");
                             this.startFetchInterval(url);
                         }
                         if(this.gameData.status.message === "The Game Is Over" && this.intervalId != null){
-                            console.log("if The Game Is Over");
                             this.stopFetchInterval();
                         }
 
@@ -151,11 +147,9 @@ var app = new Vue({
                 .then(response => response.json())
                 .then(myData => {
                     if (myData.error) {
-                        console.log(myData.error);
                         alert(myData.error);
                         this.deleteCurrentSalvo();
                     } else {
-                        console.log(myData.ok);
                         window.location.reload();
                     }
                 })
@@ -525,18 +519,14 @@ var app = new Vue({
             cell.children[0].className = "grid-item-OP-Salvo-Empty";
         },
         startFetchInterval: function(url){
-            console.log("start interval")
             const INTERVAL = 2000;
             let i=0;
             this.intervalId = setInterval(() => {
-                console.log("interval " + i);
                 i++;
                 this.startFetch(url); 
             }, INTERVAL);
-            console.log("intervalId", this.intervalId);
         },
         stopFetchInterval: function(){
-            console.log("stop interval")
             clearInterval(this.intervalId);
         }
     },

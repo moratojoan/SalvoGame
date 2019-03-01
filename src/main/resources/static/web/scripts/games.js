@@ -26,7 +26,6 @@ var app = new Vue({
                 this.leaderBoard = leaderBoard;
 
                 if(this.intervalId === null){
-                    console.log("if interval === null");
                     this.startFetchListInterval(URLS, INIT);
                 }
 
@@ -72,7 +71,6 @@ var app = new Vue({
                     body: 'userName=' + this.formUserName + '&password=' + this.formPassword,
                 })
                 .then(response => {
-                    console.log('Request success: ', response);
                     if (response.status == 200) {
                         location.reload();
                     } else if (response.status == 401) {
@@ -191,18 +189,14 @@ var app = new Vue({
         },
 
         startFetchListInterval: function(URLS, INIT){
-            console.log("start interval")
             const INTERVAL = 10000;
             let i=0;
             this.intervalId = setInterval(() => {
-                console.log("interval " + i);
                 i++;
                 this.startFetchList(URLS, INIT);
             }, INTERVAL);
-            console.log("intervalId", this.intervalId);
         },
         stopFetchListInterval: function(){
-            console.log("stop interval")
             clearInterval(this.intervalId);
         }
     },
